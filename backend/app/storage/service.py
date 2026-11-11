@@ -30,15 +30,23 @@ class StorageService:
         with open(stored_path, "wb") as f:
             f.write(content)
 
-        # Parse basic shape
-        if file_type == "csv":
-            df = pd.read_csv(stored_path)
-        elif file_type in ["xlsx", "xls"]:
-            df = pd.read_excel(stored_path)
-        elif file_type == "json":
-            df = pd.read_json(stored_path)
-        else:
-            raise ValueError(f"Unsupported file type: {file_type}")
+        try:
+            # Parse basic shape
+            if file_type == "csv":
+                df = pd.read_csv(stored_path)
+            elif file_type in ["xlsx", "xls"]:
+                df = pd.read_excel(stored_path)
+            elif file_type == "json":
+                df = pd.read_json(stored_path)
+            else:
+                raise ValueError(f"Unsupported file type: {file_type}")
+        except Exception:
+            if stored_path.exists():
+                try:
+                    stored_path.unlink()
+                except Exception:
+                    pass
+            raise
 
         meta = DatasetMetadata(
             id=dataset_id,
@@ -79,6 +87,17 @@ class StorageService:
 
     def get_dataset_meta(self, dataset_id: str) -> Optional[DatasetMetadata]:
         return self.datasets_meta.get(dataset_id)
+
+    def remove_dataset(self, dataset_id: str) -> None:
+        """Removes a dataset and unlinks its uploaded file from disk."""
+        path = self.dataset_paths.pop(dataset_id, None)
+        if path and isinstance(path, Path) and path.exists():
+            try:
+                path.unlink()
+            except Exception:
+                pass
+        self.datasets_meta.pop(dataset_id, None)
+        self.datasets_profile.pop(dataset_id, None)
 
     def get_dataset_path(self, dataset_id: str) -> Optional[Path]:
         return self.dataset_paths.get(dataset_id)

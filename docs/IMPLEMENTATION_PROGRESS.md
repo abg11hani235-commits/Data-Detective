@@ -1,0 +1,63 @@
+# Data Detective — Implementation Progress Tracker
+
+This document tracks implementation status across each phase and work item.
+Statuses: `NOT STARTED` | `IN PROGRESS` | `BLOCKED` | `IMPLEMENTED` | `TESTED` | `VERIFIED`
+
+> **Rule:** An item cannot be marked `VERIFIED` without verifiable automated test execution.
+
+---
+
+## Phase 0: Repository Discovery, Baseline & Audit
+
+| Task ID | Item | Owner | Status | Notes / Evidence |
+|---|---|---|---|---|
+| **P0-01** | Inspect repository, backend & frontend architecture | Senior Eng | **VERIFIED** | Full architectural map documented |
+| **P0-02** | Verify previous audit hypotheses against live codebase | Sec Eng | **VERIFIED** | Hypotheses SEC-01 through AI-05 confirmed with code lines |
+| **P0-03** | Run baseline test suite and document failures | QA Eng | **VERIFIED** | `docs/TEST_BASELINE.md` generated (17 passed, 2 failed, 1 skipped) |
+| **P0-04** | Deliver `ENGINEERING_AUDIT.md` | Arch Eng | **VERIFIED** | `docs/ENGINEERING_AUDIT.md` created with severity matrix |
+| **P0-05** | Deliver `IMPLEMENTATION_PLAN.md` | Tech Lead | **VERIFIED** | Multi-phase plan with dependency DAG formulated |
+
+---
+
+## Phase 1: Critical Infrastructure and Security
+
+| Task ID | Item | Target Component | Status | Acceptance Criteria / Tests |
+|---|---|---|---|---|
+| **P1-01** | Dedicated Docker Sandbox Image & Non-Root Execution | `sandbox/docker_runner.py` | **VERIFIED** | `Dockerfile.sandbox`, pinned deps, UID 10001, ro/rw split volumes, timeout (6/6 tests pass) |
+| **P1-02** | Output Stream Bounding & Memory DoS Prevention | `sandbox/runner.py`, `docker_runner.py` | **VERIFIED** | Bounded chunk reading, max output kill tests (10/10 security tests pass) |
+| **P1-03** | PostgreSQL Persistence Layer & Alembic Migrations | `storage/`, `models/` | NOT STARTED | PostgreSQL models for Session, Dataset, Analysis; migrations |
+| **P1-04** | User Authentication & Resource Authorization | `api/`, `auth/` | NOT STARTED | JWT/API Key auth, `user_id` ownership checks on all routes, protected SSE |
+| **P1-05** | Secure Ingestion Streaming & Profiler Bugfix | `ingestion/service.py`, `profiler/engine.py` | **VERIFIED** | Streamed chunk validation, orphaned cleanup, Pandas 3.0 string/date fix (8/8 tests pass) |
+
+---
+
+## Phase 2: AI Reliability and Orchestration
+
+| Task ID | Item | Target Component | Status | Acceptance Criteria / Tests |
+|---|---|---|---|---|
+| **P2-01** | Structured Evidence Registry & Claim Schema | `agent/verifier.py`, `models/schemas.py` | NOT STARTED | Claim-to-Evidence verification; context-aware numerical grounding |
+| **P2-02** | Modernize to `google-genai` SDK | `providers/gemini.py`, `config.py` | NOT STARTED | Clean migration from sunsetted `google.generativeai` |
+| **P2-03** | LangGraph State Guards & Real Validation Nodes | `agent/graph.py` | NOT STARTED | Conditional routing on dataset/code failure; real `validate_results` |
+| **P2-04** | Provider Fallback & Production Mock Disablement | `providers/manager.py` | NOT STARTED | `ALLOW_MOCK_FALLBACK=False` in prod, latency/token telemetry |
+
+---
+
+## Phase 3: Advanced Data Analytics
+
+| Task ID | Item | Target Component | Status | Acceptance Criteria / Tests |
+|---|---|---|---|---|
+| **P3-01** | Modular Advanced EDA Engine | `profiler/advanced_eda.py` | NOT STARTED | Missingness, correlations, distributions, outliers, sampling |
+| **P3-02** | Statistical Testing & Inference Framework | `analytics/statistics.py` | NOT STARTED | Normality, t-test, chi-square, correlation vs causation caveats |
+| **P3-03** | Multi-Step Analytical Planning & Step Execution | `agent/planner.py`, `agent/graph.py` | NOT STARTED | Step decomposition, intermediate verification, final synthesis |
+| **P3-04** | 100+ Question Analytical Evaluation Benchmark | `tests/benchmark/` | NOT STARTED | 100 question ground-truth suite across 8 analytical categories |
+
+---
+
+## Phase 4: Product Quality & Production Hardening
+
+| Task ID | Item | Target Component | Status | Acceptance Criteria / Tests |
+|---|---|---|---|---|
+| **P4-01** | Saved Investigations & Workspace Management | `api/investigations.py`, frontend | NOT STARTED | Persisted multi-turn analytical projects |
+| **P4-02** | Comprehensive Analytical Reports (PDF/Excel Export) | `reporting/service.py` | NOT STARTED | Formatted Markdown, HTML, PDF/Excel analytical export |
+| **P4-03** | Frontend Progress States & Grounding UI | `frontend/src/` | NOT STARTED | Evidence drawer, claim verification badges, provider telemetry |
+| **P4-04** | CI/CD Automation, Logging & Docker Compose | Root repo, GitHub Actions | NOT STARTED | Automated testing pipeline, structured JSON logging, one-command run |

@@ -90,7 +90,7 @@ class ProfilingEngine:
             is_datetime = False
             if pd.api.types.is_datetime64_any_dtype(series):
                 is_datetime = True
-            elif series.dtype == "object":
+            elif pd.api.types.is_string_dtype(series) or series.dtype == "object" or str(series.dtype) in ["string", "str"]:
                 # Check sample values to see if parseable as date
                 sample_valid = series.dropna().head(20)
                 if len(sample_valid) > 0:

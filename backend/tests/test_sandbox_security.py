@@ -102,3 +102,84 @@ with open('output/results.json', 'w') as f:
     is_safe, violations = CodeSecurityChecker.validate_code(code)
     assert is_safe is True
     assert len(violations) == 0
+
+
+import time
+from pathlib import Path
+from app.sandbox.runner import SandboxRunner
+from app.config import settings
+
+
+@pytest.mark.asyncio
+async def test_sandbox_kills_infinite_output_loop(tmp_path):
+    # Dummy dataset
+    dummy_csv = tmp_path / "dummy.csv"
+    dummy_csv.write_text("a,b\n1,2\n3,4\n", encoding="utf-8")
+
+    code = """
+import json
+for _ in range(50000):
+    print("FLOOD_STREAM_OUTPUT_" * 10)
+with open('output/results.json', 'w') as f:
+    json.dump({'status': 'success'}, f)
+"""
+    t0 = time.time()
+    out = await SandboxRunner.execute(
+        code=code,
+        dataset_path=dummy_csv,
+        file_type="csv",
+        timeout_seconds=5,
+    )
+    elapsed = time.time() - t0
+
+    assert elapsed < 5.0
+    assert out.status == "error"
+    assert "limit" in out.error_message.lower() or "timeout" in out.error_message.lower()
+    assert len(out.stdout.encode("utf-8")) <= settings.MAX_STDOUT_BYTES + 4096
+
+
+@pytest.mark.asyncio
+async def test_sandbox_kills_infinite_computation_timeout(tmp_path):
+    dummy_csv = tmp_path / "dummy.csv"
+    dummy_csv.write_text("a,b\n1,2\n3,4\n", encoding="utf-8")
+
+    code = """
+import time
+time.sleep(10)
+"""
+    t0 = time.time()
+    out = await SandboxRunner.execute(
+        code=code,
+        dataset_path=dummy_csv,
+        file_type="csv",
+        timeout_seconds=2,
+    )
+    elapsed = time.time() - t0
+
+    assert 1.5 <= elapsed <= 3.5
+    assert out.status == "error"
+    assert "timed out" in out.error_message.lower()
+
+
+@pytest.mark.asyncio
+async def test_sandbox_rejects_payload_larger_than_5mb(tmp_path):
+    dummy_csv = tmp_path / "dummy.csv"
+    dummy_csv.write_text("a,b\n1,2\n3,4\n", encoding="utf-8")
+
+    code = """
+import json
+# Generate payload exceeding 5MB
+big_str = "X" * (5 * 1024 * 1024 + 1024)
+with open('output/results.json', 'w') as f:
+    json.dump({'status': 'success', 'data': big_str}, f)
+"""
+    out = await SandboxRunner.execute(
+        code=code,
+        dataset_path=dummy_csv,
+        file_type="csv",
+        timeout_seconds=10,
+    )
+
+    assert out.status == "error"
+    assert "size limit" in out.error_message.lower()
+

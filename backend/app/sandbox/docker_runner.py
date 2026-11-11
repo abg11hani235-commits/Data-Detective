@@ -10,7 +10,7 @@ from typing import Any, Dict, Optional, Tuple
 from app.config import settings
 from app.logging import logger
 from app.models.schemas import ExecutionOutput
-from app.sandbox.runner import SandboxRunner
+from app.sandbox.runner import SandboxRunner, read_bounded_process_output
 from app.sandbox.security import CodeSecurityChecker
 
 
@@ -21,21 +21,25 @@ class DockerSandboxRunner:
       - --network none (strictly offline)
       - --read-only root filesystem
       - --tmpfs /tmp:rw,noexec,nosuid,size=64m
-      - --user 1000:1000 (non-root UID)
+      - --user 10001:10001 (unprivileged non-root UID)
+      - --security-opt no-new-privileges:true
       - --cap-drop=ALL (drops all Linux capabilities)
       - --cpus=1.0 & --memory=512m & --pids-limit=64
+      - Split mounts: read-only dataset & code, isolated read-write output/
     Falls back gracefully to SandboxRunner (AST-filtered subprocess) if Docker daemon is not active.
     """
 
-    IMAGE_NAME = "python:3.11-slim"
+    IMAGE_NAME = "data-detective-sandbox:latest"
 
     @classmethod
     async def is_docker_available(cls) -> bool:
-        """Check if Docker CLI is installed and daemon is currently reachable."""
+        """Check if Docker CLI is installed, daemon is reachable, and sandbox image exists."""
         try:
             proc = await asyncio.create_subprocess_exec(
                 "docker",
-                "info",
+                "image",
+                "inspect",
+                cls.IMAGE_NAME,
                 stdout=asyncio.subprocess.PIPE,
                 stderr=asyncio.subprocess.PIPE,
             )
@@ -99,20 +103,24 @@ class DockerSandboxRunner:
             with open(script_path, "w", encoding="utf-8") as f:
                 f.write(wrapper_script)
 
-            # Build Docker command
+            # Build Docker command with non-root user, dropped capabilities, no-new-privileges, and split ro/rw mounts
             docker_cmd = [
                 "docker", "run", "--rm",
                 "--network", "none",
                 "--read-only",
                 "--tmpfs", "/tmp:rw,noexec,nosuid,size=64m",
+                "--security-opt", "no-new-privileges:true",
+                "--user", "10001:10001",
                 "--cap-drop=ALL",
                 "--cpus", "1.0",
                 "--memory", f"{settings.SANDBOX_MAX_MEMORY_MB}m",
                 "--pids-limit", "64",
-                "-v", f"{sandbox_dir.resolve()}:/workspace:rw",
+                "-v", f"{dest_dataset.resolve()}:/workspace/dataset.{file_type.lower()}:ro",
+                "-v", f"{script_path.resolve()}:/workspace/analysis.py:ro",
+                "-v", f"{output_dir.resolve()}:/workspace/output:rw",
                 "-w", "/workspace",
                 cls.IMAGE_NAME,
-                "python", "analysis.py",
+                "python3", "analysis.py",
             ]
 
             proc = await asyncio.create_subprocess_exec(
@@ -121,22 +129,24 @@ class DockerSandboxRunner:
                 stderr=asyncio.subprocess.PIPE,
             )
 
-            try:
-                stdout_bytes, stderr_bytes = await asyncio.wait_for(
-                    proc.communicate(),
-                    timeout=float(timeout),
-                )
-                stdout_str = stdout_bytes.decode("utf-8", errors="replace")[: settings.MAX_STDOUT_BYTES]
-                stderr_str = stderr_bytes.decode("utf-8", errors="replace")[: settings.MAX_STDOUT_BYTES]
-            except asyncio.TimeoutError:
-                try:
-                    proc.kill()
-                    await proc.wait()
-                except Exception:
-                    pass
+            stdout_str, stderr_str, is_timeout, is_output_exceeded = await read_bounded_process_output(
+                proc=proc,
+                max_bytes=settings.MAX_STDOUT_BYTES,
+                timeout=float(timeout),
+            )
+
+            if is_timeout:
                 return ExecutionOutput(
                     status="error",
                     error_message=f"Container execution timed out after {timeout} seconds.",
+                    stdout=stdout_str,
+                )
+
+            if is_output_exceeded:
+                return ExecutionOutput(
+                    status="error",
+                    error_message=f"Container execution exceeded maximum output limit ({settings.MAX_STDOUT_BYTES} bytes).",
+                    stdout=stdout_str,
                 )
 
             if proc.returncode != 0:
@@ -154,6 +164,14 @@ class DockerSandboxRunner:
                     status="error",
                     error_message="Analysis completed in container but did not produce 'output/results.json'.",
                     stdout=stdout_str,
+                )
+
+            # Check output file size limit before reading into memory
+            file_size = results_file.stat().st_size
+            if file_size > SandboxRunner.MAX_OUTPUT_SIZE_BYTES:
+                return ExecutionOutput(
+                    status="error",
+                    error_message=f"Container output payload exceeded size limit ({file_size} bytes > {SandboxRunner.MAX_OUTPUT_SIZE_BYTES} bytes).",
                 )
 
             with open(results_file, "r", encoding="utf-8") as f:

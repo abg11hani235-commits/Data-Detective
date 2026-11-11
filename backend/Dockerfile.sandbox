@@ -1,0 +1,29 @@
+# Data Detective Hardened Sandbox Container
+FROM python:3.11-slim
+
+# Prevent writing .pyc files and enable unbuffered output
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    PIP_NO_CACHE_DIR=1 \
+    PIP_DISABLE_PIP_VERSION_CHECK=1
+
+# Install minimal analytical dependencies
+RUN pip install --no-cache-dir --default-timeout=120 \
+    "pandas>=2.2.0,<3.1.0" \
+    "numpy>=1.26.0,<2.3.0" \
+    "plotly>=5.24.0,<6.0.0" \
+    "scipy>=1.13.0,<1.16.0" \
+    "openpyxl>=3.1.2,<3.2.0"
+
+# Create unprivileged sandbox user and group (UID/GID 10001)
+RUN groupadd -g 10001 sandboxgroup && \
+    useradd -u 10001 -g sandboxgroup -m -s /sbin/nologin sandboxuser
+
+# Create workspace directory with restricted permissions
+WORKDIR /workspace
+RUN chown -R sandboxuser:sandboxgroup /workspace
+
+# Default execution user
+USER 10001:10001
+
+CMD ["python3"]

@@ -13,6 +13,83 @@ from app.models.schemas import ExecutionOutput
 from app.sandbox.security import CodeSecurityChecker
 
 
+async def read_bounded_process_output(
+    proc: asyncio.subprocess.Process,
+    max_bytes: int,
+    timeout: float,
+) -> Tuple[str, str, bool, bool]:
+    """
+    Reads stdout and stderr concurrently up to max_bytes without buffering unbounded data in RAM.
+    If stream output exceeds max_bytes or process exceeds timeout, kills process immediately.
+    Returns (stdout_str, stderr_str, is_timeout, is_output_exceeded).
+    """
+    stdout_chunks: List[bytes] = []
+    stderr_chunks: List[bytes] = []
+    stdout_len = 0
+    stderr_len = 0
+    exceeded = False
+
+    async def read_stream(stream: Optional[asyncio.StreamReader], is_stdout: bool):
+        nonlocal stdout_len, stderr_len, exceeded
+        if not stream:
+            return
+        while True:
+            chunk = await stream.read(4096)
+            if not chunk:
+                break
+            if is_stdout:
+                stdout_len += len(chunk)
+                if stdout_len <= max_bytes:
+                    stdout_chunks.append(chunk)
+                else:
+                    exceeded = True
+                    try:
+                        proc.kill()
+                    except Exception:
+                        pass
+                    break
+            else:
+                stderr_len += len(chunk)
+                if stderr_len <= max_bytes:
+                    stderr_chunks.append(chunk)
+                else:
+                    exceeded = True
+                    try:
+                        proc.kill()
+                    except Exception:
+                        pass
+                    break
+
+    try:
+        await asyncio.wait_for(
+            asyncio.gather(
+                read_stream(proc.stdout, True),
+                read_stream(proc.stderr, False),
+                proc.wait(),
+            ),
+            timeout=timeout,
+        )
+    except asyncio.TimeoutError:
+        try:
+            proc.kill()
+            await proc.wait()
+        except Exception:
+            pass
+        return (
+            b"".join(stdout_chunks).decode("utf-8", errors="replace"),
+            b"".join(stderr_chunks).decode("utf-8", errors="replace"),
+            True,   # is_timeout
+            exceeded,
+        )
+
+    return (
+        b"".join(stdout_chunks).decode("utf-8", errors="replace"),
+        b"".join(stderr_chunks).decode("utf-8", errors="replace"),
+        False,  # is_timeout
+        exceeded,
+    )
+
+
 class SandboxRunner:
     """
     Isolated Python Execution Worker.
@@ -75,7 +152,7 @@ class SandboxRunner:
                 "PYTHONDONTWRITEBYTECODE": "1",
             }
 
-            # Step 4: Execute in child process with timeout
+            # Step 4: Execute in child process with timeout and bounded stream reading
             proc = await asyncio.create_subprocess_exec(
                 sys.executable,
                 "analysis.py",
@@ -85,22 +162,24 @@ class SandboxRunner:
                 stderr=asyncio.subprocess.PIPE,
             )
 
-            try:
-                stdout_bytes, stderr_bytes = await asyncio.wait_for(
-                    proc.communicate(),
-                    timeout=float(timeout),
-                )
-                stdout_str = stdout_bytes.decode("utf-8", errors="replace")[: settings.MAX_STDOUT_BYTES]
-                stderr_str = stderr_bytes.decode("utf-8", errors="replace")[: settings.MAX_STDOUT_BYTES]
-            except asyncio.TimeoutError:
-                try:
-                    proc.kill()
-                    await proc.wait()
-                except Exception:
-                    pass
+            stdout_str, stderr_str, is_timeout, is_output_exceeded = await read_bounded_process_output(
+                proc=proc,
+                max_bytes=settings.MAX_STDOUT_BYTES,
+                timeout=float(timeout),
+            )
+
+            if is_timeout:
                 return ExecutionOutput(
                     status="error",
                     error_message=f"Execution timed out after {timeout} seconds. The computation was too intensive.",
+                    stdout=stdout_str,
+                )
+
+            if is_output_exceeded:
+                return ExecutionOutput(
+                    status="error",
+                    error_message=f"Execution exceeded maximum output limit ({settings.MAX_STDOUT_BYTES} bytes).",
+                    stdout=stdout_str,
                 )
 
             # Step 5: Check exit code
