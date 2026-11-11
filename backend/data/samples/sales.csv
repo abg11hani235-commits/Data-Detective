@@ -1,0 +1,251 @@
+date,product,category,region,quantity,unit_price,revenue,cost,profit
+2025-05-21,Aero Noise-Canceling Buds,Audio,North America,1,180.0,180.0,95.0,85.0
+2025-02-22,Apex Smartphone,Electronics,Europe,3,800.0,2400.0,1560.0,840.0
+2025-08-05,Aero Noise-Canceling Buds,Audio,North America,10,180.0,1800.0,950.0,850.0
+2025-04-22,Quantum Laptop,Electronics,North America,2,1200.0,2400.0,1700.0,700.0
+2025-04-12,Apex Smartphone,Electronics,North America,9,800.0,7200.0,4680.0,2520.0
+2025-08-18,Aero Noise-Canceling Buds,Audio,Latin America,4,180.0,720.0,380.0,340.0
+2025-03-23,Trailblazer Backpack,Accessories,Asia Pacific,1,85.0,85.0,35.0,50.0
+2025-05-23,Aero Noise-Canceling Buds,Audio,Latin America,6,180.0,1080.0,570.0,510.0
+2025-02-22,Apex Smartphone,Electronics,Europe,6,800.0,4800.0,3120.0,1680.0
+2025-07-03,Quantum Laptop,Electronics,Latin America,2,1200.0,2400.0,1700.0,700.0
+2025-05-16,Titan Mechanical Keyboard,Electronics,Asia Pacific,10,140.0,1400.0,750.0,650.0
+2025-08-24,Titan Mechanical Keyboard,Electronics,North America,12,140.0,1680.0,900.0,780.0
+2025-07-13,Trailblazer Backpack,Accessories,North America,15,85.0,1275.0,525.0,750.0
+2025-07-05,Quantum Laptop,Electronics,Asia Pacific,10,1200.0,12000.0,8500.0,3500.0
+2025-01-24,Trailblazer Backpack,Accessories,Europe,2,85.0,170.0,70.0,100.0
+2025-02-10,Aero Noise-Canceling Buds,Audio,Europe,5,180.0,900.0,475.0,425.0
+2025-07-14,Titan Mechanical Keyboard,Electronics,Europe,2,140.0,280.0,150.0,130.0
+2025-03-25,ErgoFit Desk Chair,Furniture,Latin America,6,350.0,2100.0,1140.0,960.0
+2025-12-10,ErgoFit Desk Chair,Furniture,Asia Pacific,4,350.0,1400.0,760.0,640.0
+2025-11-22,ErgoFit Desk Chair,Furniture,North America,10,350.0,3500.0,1900.0,1600.0
+2025-08-25,Apex Smartphone,Electronics,Europe,3,800.0,2400.0,1560.0,840.0
+2025-04-23,Lumina Floor Lamp,Furniture,Asia Pacific,9,110.0,990.0,540.0,450.0
+2025-04-28,Aero Noise-Canceling Buds,Audio,Asia Pacific,1,180.0,180.0,95.0,85.0
+2025-06-11,Titan Mechanical Keyboard,Electronics,North America,13,140.0,1820.0,975.0,845.0
+2025-04-19,Lumina Floor Lamp,Furniture,Asia Pacific,2,110.0,220.0,120.0,100.0
+2025-12-02,Trailblazer Backpack,Accessories,Asia Pacific,4,85.0,340.0,140.0,200.0
+2025-03-15,Lumina Floor Lamp,Furniture,Latin America,8,110.0,880.0,480.0,400.0
+2025-10-15,ErgoFit Desk Chair,Furniture,Europe,4,350.0,1400.0,760.0,640.0
+2025-08-08,Trailblazer Backpack,Accessories,Asia Pacific,10,85.0,850.0,350.0,500.0
+2025-04-23,Trailblazer Backpack,Accessories,Latin America,6,85.0,510.0,210.0,300.0
+2025-01-25,Apex Smartphone,Electronics,Latin America,2,800.0,1600.0,1040.0,560.0
+2025-11-18,Titan Mechanical Keyboard,Electronics,North America,3,140.0,420.0,225.0,195.0
+2025-02-02,Apex Smartphone,Electronics,Latin America,10,800.0,8000.0,5200.0,2800.0
+2025-08-28,Lumina Floor Lamp,Furniture,Latin America,10,110.0,1100.0,600.0,500.0
+2025-01-06,Trailblazer Backpack,Accessories,Asia Pacific,9,85.0,765.0,315.0,450.0
+2025-10-02,Aero Noise-Canceling Buds,Audio,North America,11,180.0,1980.0,1045.0,935.0
+2025-02-27,Titan Mechanical Keyboard,Electronics,Asia Pacific,6,140.0,840.0,450.0,390.0
+2025-08-21,ErgoFit Desk Chair,Furniture,Latin America,3,350.0,1050.0,570.0,480.0
+2025-04-02,Quantum Laptop,Electronics,Asia Pacific,9,1200.0,10800.0,7650.0,3150.0
+2025-11-17,Trailblazer Backpack,Accessories,North America,14,85.0,1190.0,490.0,700.0
+2025-07-11,ErgoFit Desk Chair,Furniture,Europe,3,350.0,1050.0,570.0,480.0
+2025-09-29,Titan Mechanical Keyboard,Electronics,Europe,9,140.0,1260.0,675.0,585.0
+2025-01-10,Quantum Laptop,Electronics,Asia Pacific,8,1200.0,9600.0,6800.0,2800.0
+2025-05-03,Quantum Laptop,Electronics,Asia Pacific,5,1200.0,6000.0,4250.0,1750.0
+2025-02-10,Quantum Laptop,Electronics,Europe,10,1200.0,12000.0,8500.0,3500.0
+2025-09-30,Quantum Laptop,Electronics,Latin America,2,1200.0,2400.0,1700.0,700.0
+2025-12-04,Titan Mechanical Keyboard,Electronics,Europe,3,140.0,420.0,225.0,195.0
+2025-09-28,Lumina Floor Lamp,Furniture,Europe,5,110.0,550.0,300.0,250.0
+2025-10-04,Titan Mechanical Keyboard,Electronics,Latin America,4,140.0,560.0,300.0,260.0
+2025-07-24,Titan Mechanical Keyboard,Electronics,Europe,5,140.0,700.0,375.0,325.0
+2025-09-22,Aero Noise-Canceling Buds,Audio,Asia Pacific,8,180.0,1440.0,760.0,680.0
+2025-04-26,Lumina Floor Lamp,Furniture,North America,4,110.0,440.0,240.0,200.0
+2025-10-29,Quantum Laptop,Electronics,Asia Pacific,1,1200.0,1200.0,850.0,350.0
+2025-04-23,Trailblazer Backpack,Accessories,Europe,10,85.0,850.0,350.0,500.0
+2025-11-20,Quantum Laptop,Electronics,North America,12,1200.0,14400.0,10200.0,4200.0
+2025-01-17,Quantum Laptop,Electronics,Europe,2,1200.0,2400.0,1700.0,700.0
+2025-09-21,Titan Mechanical Keyboard,Electronics,Asia Pacific,2,140.0,280.0,150.0,130.0
+2025-04-20,Apex Smartphone,Electronics,Asia Pacific,8,800.0,6400.0,4160.0,2240.0
+2025-10-23,Trailblazer Backpack,Accessories,Europe,10,85.0,850.0,350.0,500.0
+2025-07-28,Lumina Floor Lamp,Furniture,Europe,8,110.0,880.0,480.0,400.0
+2025-12-04,Apex Smartphone,Electronics,North America,2,800.0,1600.0,1040.0,560.0
+2025-07-30,Lumina Floor Lamp,Furniture,Asia Pacific,7,110.0,770.0,420.0,350.0
+2025-12-01,Lumina Floor Lamp,Furniture,North America,11,110.0,1210.0,660.0,550.0
+2025-07-26,Aero Noise-Canceling Buds,Audio,North America,1,180.0,180.0,95.0,85.0
+2025-05-08,Aero Noise-Canceling Buds,Audio,Asia Pacific,2,180.0,360.0,190.0,170.0
+2025-08-18,Apex Smartphone,Electronics,Europe,9,800.0,7200.0,4680.0,2520.0
+2025-05-23,Apex Smartphone,Electronics,Latin America,3,800.0,2400.0,1560.0,840.0
+2025-08-15,Lumina Floor Lamp,Furniture,Europe,2,110.0,220.0,120.0,100.0
+2025-11-30,Titan Mechanical Keyboard,Electronics,North America,1,140.0,140.0,75.0,65.0
+2025-05-02,Trailblazer Backpack,Accessories,North America,2,85.0,170.0,70.0,100.0
+2025-09-04,Apex Smartphone,Electronics,Latin America,8,800.0,6400.0,4160.0,2240.0
+2025-03-26,Apex Smartphone,Electronics,Latin America,1,800.0,800.0,520.0,280.0
+2025-05-16,Lumina Floor Lamp,Furniture,North America,7,110.0,770.0,420.0,350.0
+2025-08-05,Titan Mechanical Keyboard,Electronics,Latin America,5,140.0,700.0,375.0,325.0
+2025-04-08,Aero Noise-Canceling Buds,Audio,Latin America,3,180.0,540.0,285.0,255.0
+2025-10-24,ErgoFit Desk Chair,Furniture,Europe,1,350.0,350.0,190.0,160.0
+2025-06-10,Aero Noise-Canceling Buds,Audio,North America,12,180.0,2160.0,1140.0,1020.0
+2025-09-02,Quantum Laptop,Electronics,North America,10,1200.0,12000.0,8500.0,3500.0
+2025-09-18,Trailblazer Backpack,Accessories,Europe,1,85.0,85.0,35.0,50.0
+2025-11-01,Quantum Laptop,Electronics,Europe,2,1200.0,2400.0,1700.0,700.0
+2025-03-03,Quantum Laptop,Electronics,Europe,7,1200.0,8400.0,5950.0,2450.0
+2025-11-01,Trailblazer Backpack,Accessories,Europe,10,85.0,850.0,350.0,500.0
+2025-12-03,Quantum Laptop,Electronics,North America,7,1200.0,8400.0,5950.0,2450.0
+2025-04-15,Trailblazer Backpack,Accessories,Asia Pacific,5,85.0,425.0,175.0,250.0
+2025-05-16,Aero Noise-Canceling Buds,Audio,Asia Pacific,4,180.0,720.0,380.0,340.0
+2025-08-23,Lumina Floor Lamp,Furniture,Europe,5,110.0,550.0,300.0,250.0
+2025-08-23,ErgoFit Desk Chair,Furniture,North America,1,350.0,350.0,190.0,160.0
+2025-10-03,Trailblazer Backpack,Accessories,North America,2,85.0,170.0,70.0,100.0
+2025-06-28,Apex Smartphone,Electronics,Asia Pacific,3,800.0,2400.0,1560.0,840.0
+2025-05-26,Quantum Laptop,Electronics,Europe,6,1200.0,7200.0,5100.0,2100.0
+2025-12-27,Apex Smartphone,Electronics,Latin America,9,800.0,7200.0,4680.0,2520.0
+2025-10-11,ErgoFit Desk Chair,Furniture,North America,11,350.0,3850.0,2090.0,1760.0
+2025-03-10,ErgoFit Desk Chair,Furniture,North America,15,350.0,5250.0,2850.0,2400.0
+2025-02-24,ErgoFit Desk Chair,Furniture,North America,15,350.0,5250.0,2850.0,2400.0
+2025-05-25,Aero Noise-Canceling Buds,Audio,Europe,5,180.0,900.0,475.0,425.0
+2025-04-15,Trailblazer Backpack,Accessories,Europe,6,85.0,510.0,210.0,300.0
+2025-09-08,Aero Noise-Canceling Buds,Audio,Asia Pacific,9,180.0,1620.0,855.0,765.0
+2025-11-21,ErgoFit Desk Chair,Furniture,North America,2,350.0,700.0,380.0,320.0
+2025-01-02,Lumina Floor Lamp,Furniture,Asia Pacific,1,110.0,110.0,60.0,50.0
+2025-03-24,ErgoFit Desk Chair,Furniture,Europe,5,350.0,1750.0,950.0,800.0
+2025-08-07,Aero Noise-Canceling Buds,Audio,Latin America,9,180.0,1620.0,855.0,765.0
+2025-02-08,Trailblazer Backpack,Accessories,North America,2,85.0,170.0,70.0,100.0
+2025-01-19,Aero Noise-Canceling Buds,Audio,Europe,9,180.0,1620.0,855.0,765.0
+2025-10-10,Titan Mechanical Keyboard,Electronics,Asia Pacific,10,140.0,1400.0,750.0,650.0
+2025-01-22,Apex Smartphone,Electronics,Latin America,3,800.0,2400.0,1560.0,840.0
+2025-07-03,ErgoFit Desk Chair,Furniture,Asia Pacific,1,350.0,350.0,190.0,160.0
+2025-07-01,Apex Smartphone,Electronics,Europe,2,800.0,1600.0,1040.0,560.0
+2025-03-21,Titan Mechanical Keyboard,Electronics,Latin America,10,140.0,1400.0,750.0,650.0
+2025-07-31,Apex Smartphone,Electronics,Europe,3,800.0,2400.0,1560.0,840.0
+2025-07-30,Quantum Laptop,Electronics,Europe,6,1200.0,7200.0,5100.0,2100.0
+2025-03-23,Titan Mechanical Keyboard,Electronics,Europe,5,140.0,700.0,375.0,325.0
+2025-01-20,Titan Mechanical Keyboard,Electronics,North America,7,140.0,980.0,525.0,455.0
+2025-04-13,Titan Mechanical Keyboard,Electronics,Latin America,4,140.0,560.0,300.0,260.0
+2025-06-06,Titan Mechanical Keyboard,Electronics,Latin America,6,140.0,840.0,450.0,390.0
+2025-01-13,Titan Mechanical Keyboard,Electronics,Europe,4,140.0,560.0,300.0,260.0
+2025-06-18,Aero Noise-Canceling Buds,Audio,Europe,7,180.0,1260.0,665.0,595.0
+2025-05-23,ErgoFit Desk Chair,Furniture,North America,13,350.0,4550.0,2470.0,2080.0
+2025-06-19,ErgoFit Desk Chair,Furniture,Latin America,9,350.0,3150.0,1710.0,1440.0
+2025-05-14,Quantum Laptop,Electronics,North America,15,1200.0,18000.0,12750.0,5250.0
+2025-02-25,Apex Smartphone,Electronics,Asia Pacific,1,800.0,800.0,520.0,280.0
+2025-06-10,Trailblazer Backpack,Accessories,Latin America,6,85.0,510.0,210.0,300.0
+2025-10-23,Lumina Floor Lamp,Furniture,North America,7,110.0,770.0,420.0,350.0
+2025-08-12,Apex Smartphone,Electronics,Asia Pacific,1,800.0,800.0,520.0,280.0
+2025-08-09,Quantum Laptop,Electronics,Europe,6,1200.0,7200.0,5100.0,2100.0
+2025-06-10,Quantum Laptop,Electronics,Asia Pacific,10,1200.0,12000.0,8500.0,3500.0
+2025-06-03,Aero Noise-Canceling Buds,Audio,North America,12,180.0,2160.0,1140.0,1020.0
+2025-06-17,Trailblazer Backpack,Accessories,Asia Pacific,7,85.0,595.0,245.0,350.0
+2025-03-07,Lumina Floor Lamp,Furniture,Asia Pacific,9,110.0,990.0,540.0,450.0
+2025-12-13,Apex Smartphone,Electronics,Latin America,7,800.0,5600.0,3640.0,1960.0
+2025-10-19,Aero Noise-Canceling Buds,Audio,Europe,10,180.0,1800.0,950.0,850.0
+2025-01-01,ErgoFit Desk Chair,Furniture,Latin America,9,350.0,3150.0,1710.0,1440.0
+2025-08-09,ErgoFit Desk Chair,Furniture,Asia Pacific,4,350.0,1400.0,760.0,640.0
+2025-08-15,Titan Mechanical Keyboard,Electronics,Asia Pacific,8,140.0,1120.0,600.0,520.0
+2025-08-31,Lumina Floor Lamp,Furniture,Europe,9,110.0,990.0,540.0,450.0
+2025-05-26,Titan Mechanical Keyboard,Electronics,Europe,2,140.0,280.0,150.0,130.0
+2025-05-01,Trailblazer Backpack,Accessories,Asia Pacific,2,85.0,170.0,70.0,100.0
+2025-04-12,Aero Noise-Canceling Buds,Audio,Asia Pacific,4,180.0,720.0,380.0,340.0
+2025-05-06,Apex Smartphone,Electronics,North America,1,800.0,800.0,520.0,280.0
+2025-08-01,Lumina Floor Lamp,Furniture,North America,8,110.0,880.0,480.0,400.0
+2025-09-11,Aero Noise-Canceling Buds,Audio,Europe,7,180.0,1260.0,665.0,595.0
+2025-12-02,Lumina Floor Lamp,Furniture,Europe,3,110.0,330.0,180.0,150.0
+2025-02-24,Aero Noise-Canceling Buds,Audio,North America,15,180.0,2700.0,1425.0,1275.0
+2025-04-01,Titan Mechanical Keyboard,Electronics,Latin America,4,140.0,560.0,300.0,260.0
+2025-10-13,Titan Mechanical Keyboard,Electronics,Latin America,1,140.0,140.0,75.0,65.0
+2025-03-10,Apex Smartphone,Electronics,North America,8,800.0,6400.0,4160.0,2240.0
+2025-10-14,Titan Mechanical Keyboard,Electronics,Latin America,9,140.0,1260.0,675.0,585.0
+2025-11-10,Trailblazer Backpack,Accessories,Asia Pacific,8,85.0,680.0,280.0,400.0
+2025-08-17,Titan Mechanical Keyboard,Electronics,Latin America,9,140.0,1260.0,675.0,585.0
+2025-05-13,Apex Smartphone,Electronics,Latin America,8,800.0,6400.0,4160.0,2240.0
+2025-09-24,Titan Mechanical Keyboard,Electronics,Europe,5,140.0,700.0,375.0,325.0
+2025-08-14,Lumina Floor Lamp,Furniture,Europe,5,110.0,550.0,300.0,250.0
+2025-05-20,Quantum Laptop,Electronics,Asia Pacific,4,1200.0,4800.0,3400.0,1400.0
+2025-02-11,ErgoFit Desk Chair,Furniture,Asia Pacific,9,350.0,3150.0,1710.0,1440.0
+2025-07-16,Apex Smartphone,Electronics,Europe,4,800.0,3200.0,2080.0,1120.0
+2025-02-02,Aero Noise-Canceling Buds,Audio,Europe,4,180.0,720.0,380.0,340.0
+2025-10-05,Lumina Floor Lamp,Furniture,Latin America,6,110.0,660.0,360.0,300.0
+2025-04-16,Lumina Floor Lamp,Furniture,Latin America,1,110.0,110.0,60.0,50.0
+2025-10-27,Titan Mechanical Keyboard,Electronics,Latin America,7,140.0,980.0,525.0,455.0
+2025-10-22,Aero Noise-Canceling Buds,Audio,North America,14,180.0,2520.0,1330.0,1190.0
+2025-06-30,Lumina Floor Lamp,Furniture,Latin America,1,110.0,110.0,60.0,50.0
+2025-10-03,ErgoFit Desk Chair,Furniture,Latin America,7,350.0,2450.0,1330.0,1120.0
+2025-04-23,Aero Noise-Canceling Buds,Audio,Europe,8,180.0,1440.0,760.0,680.0
+2025-01-15,ErgoFit Desk Chair,Furniture,Latin America,8,350.0,2800.0,1520.0,1280.0
+2025-03-26,Lumina Floor Lamp,Furniture,Asia Pacific,7,110.0,770.0,420.0,350.0
+2025-11-15,Titan Mechanical Keyboard,Electronics,Latin America,3,140.0,420.0,225.0,195.0
+2025-07-21,Trailblazer Backpack,Accessories,North America,15,85.0,1275.0,525.0,750.0
+2025-11-26,Trailblazer Backpack,Accessories,North America,2,85.0,170.0,70.0,100.0
+2025-04-04,Lumina Floor Lamp,Furniture,Europe,8,110.0,880.0,480.0,400.0
+2025-06-17,Quantum Laptop,Electronics,Asia Pacific,7,1200.0,8400.0,5950.0,2450.0
+2025-06-22,Apex Smartphone,Electronics,Latin America,6,800.0,4800.0,3120.0,1680.0
+2025-08-04,Titan Mechanical Keyboard,Electronics,Latin America,5,140.0,700.0,375.0,325.0
+2025-01-10,ErgoFit Desk Chair,Furniture,North America,8,350.0,2800.0,1520.0,1280.0
+2025-04-25,Aero Noise-Canceling Buds,Audio,North America,6,180.0,1080.0,570.0,510.0
+2025-11-30,Aero Noise-Canceling Buds,Audio,North America,13,180.0,2340.0,1235.0,1105.0
+2025-04-13,Quantum Laptop,Electronics,North America,4,1200.0,4800.0,3400.0,1400.0
+2025-03-20,Titan Mechanical Keyboard,Electronics,North America,10,140.0,1400.0,750.0,650.0
+2025-12-09,Apex Smartphone,Electronics,Europe,8,800.0,6400.0,4160.0,2240.0
+2025-12-25,Quantum Laptop,Electronics,Europe,8,1200.0,9600.0,6800.0,2800.0
+2025-11-07,ErgoFit Desk Chair,Furniture,Asia Pacific,3,350.0,1050.0,570.0,480.0
+2025-03-25,Trailblazer Backpack,Accessories,North America,13,85.0,1105.0,455.0,650.0
+2025-01-14,ErgoFit Desk Chair,Furniture,North America,10,350.0,3500.0,1900.0,1600.0
+2025-04-12,ErgoFit Desk Chair,Furniture,Latin America,7,350.0,2450.0,1330.0,1120.0
+2025-12-23,Quantum Laptop,Electronics,Europe,2,1200.0,2400.0,1700.0,700.0
+2025-03-03,Titan Mechanical Keyboard,Electronics,Asia Pacific,10,140.0,1400.0,750.0,650.0
+2025-09-30,Titan Mechanical Keyboard,Electronics,North America,6,140.0,840.0,450.0,390.0
+2025-09-17,Lumina Floor Lamp,Furniture,Asia Pacific,2,110.0,220.0,120.0,100.0
+2025-08-04,Aero Noise-Canceling Buds,Audio,Asia Pacific,1,180.0,180.0,95.0,85.0
+2025-08-10,Titan Mechanical Keyboard,Electronics,Latin America,2,140.0,280.0,150.0,130.0
+2025-08-11,ErgoFit Desk Chair,Furniture,Latin America,3,350.0,1050.0,570.0,480.0
+2025-10-03,Apex Smartphone,Electronics,Asia Pacific,10,800.0,8000.0,5200.0,2800.0
+2025-08-12,Titan Mechanical Keyboard,Electronics,Latin America,8,140.0,1120.0,600.0,520.0
+2025-05-06,Titan Mechanical Keyboard,Electronics,Asia Pacific,6,140.0,840.0,450.0,390.0
+2025-08-19,Titan Mechanical Keyboard,Electronics,North America,5,140.0,700.0,375.0,325.0
+2025-11-09,Apex Smartphone,Electronics,Latin America,10,800.0,8000.0,5200.0,2800.0
+2025-01-15,Aero Noise-Canceling Buds,Audio,Latin America,6,180.0,1080.0,570.0,510.0
+2025-09-07,Lumina Floor Lamp,Furniture,Asia Pacific,3,110.0,330.0,180.0,150.0
+2025-06-24,Apex Smartphone,Electronics,Asia Pacific,5,800.0,4000.0,2600.0,1400.0
+2025-01-06,ErgoFit Desk Chair,Furniture,Asia Pacific,9,350.0,3150.0,1710.0,1440.0
+2025-05-04,Trailblazer Backpack,Accessories,Europe,2,85.0,170.0,70.0,100.0
+2025-10-12,Aero Noise-Canceling Buds,Audio,Latin America,8,180.0,1440.0,760.0,680.0
+2025-11-27,Titan Mechanical Keyboard,Electronics,Europe,8,140.0,1120.0,600.0,520.0
+2025-01-09,Aero Noise-Canceling Buds,Audio,Latin America,8,180.0,1440.0,760.0,680.0
+2025-07-27,Quantum Laptop,Electronics,Asia Pacific,4,1200.0,4800.0,3400.0,1400.0
+2025-12-06,Aero Noise-Canceling Buds,Audio,Europe,5,180.0,900.0,475.0,425.0
+2025-10-11,Trailblazer Backpack,Accessories,Asia Pacific,8,85.0,680.0,280.0,400.0
+2025-10-09,Trailblazer Backpack,Accessories,Asia Pacific,7,85.0,595.0,245.0,350.0
+2025-05-19,ErgoFit Desk Chair,Furniture,Asia Pacific,8,350.0,2800.0,1520.0,1280.0
+2025-03-03,ErgoFit Desk Chair,Furniture,Asia Pacific,4,350.0,1400.0,760.0,640.0
+2025-03-03,Aero Noise-Canceling Buds,Audio,Europe,6,180.0,1080.0,570.0,510.0
+2025-04-21,Aero Noise-Canceling Buds,Audio,Europe,4,180.0,720.0,380.0,340.0
+2025-10-29,Aero Noise-Canceling Buds,Audio,Latin America,5,180.0,900.0,475.0,425.0
+2025-04-10,Titan Mechanical Keyboard,Electronics,Asia Pacific,2,140.0,280.0,150.0,130.0
+2025-04-02,ErgoFit Desk Chair,Furniture,Europe,6,350.0,2100.0,1140.0,960.0
+2025-10-01,ErgoFit Desk Chair,Furniture,North America,12,350.0,4200.0,2280.0,1920.0
+2025-01-28,Apex Smartphone,Electronics,Asia Pacific,1,800.0,800.0,520.0,280.0
+2025-11-23,Trailblazer Backpack,Accessories,Asia Pacific,3,85.0,255.0,105.0,150.0
+2025-01-07,Titan Mechanical Keyboard,Electronics,Latin America,2,140.0,280.0,150.0,130.0
+2025-09-03,Trailblazer Backpack,Accessories,Asia Pacific,8,85.0,680.0,280.0,400.0
+2025-01-27,Lumina Floor Lamp,Furniture,Asia Pacific,3,110.0,330.0,180.0,150.0
+2025-02-03,ErgoFit Desk Chair,Furniture,Latin America,2,350.0,700.0,380.0,320.0
+2025-10-23,Lumina Floor Lamp,Furniture,Latin America,2,110.0,220.0,120.0,100.0
+2025-03-18,Aero Noise-Canceling Buds,Audio,North America,3,180.0,540.0,285.0,255.0
+2025-05-08,Titan Mechanical Keyboard,Electronics,Asia Pacific,2,140.0,280.0,150.0,130.0
+2025-11-02,Quantum Laptop,Electronics,Latin America,10,1200.0,12000.0,8500.0,3500.0
+2025-07-14,Titan Mechanical Keyboard,Electronics,Europe,9,140.0,1260.0,675.0,585.0
+2025-10-29,Lumina Floor Lamp,Furniture,Latin America,5,110.0,550.0,300.0,250.0
+2025-11-14,Lumina Floor Lamp,Furniture,Asia Pacific,10,110.0,1100.0,600.0,500.0
+2025-04-17,Quantum Laptop,Electronics,North America,13,1200.0,15600.0,11050.0,4550.0
+2025-12-05,Aero Noise-Canceling Buds,Audio,Europe,5,180.0,900.0,475.0,425.0
+2025-03-30,Quantum Laptop,Electronics,Europe,4,1200.0,4800.0,3400.0,1400.0
+2025-01-02,Trailblazer Backpack,Accessories,North America,3,85.0,255.0,105.0,150.0
+2025-08-29,Lumina Floor Lamp,Furniture,Latin America,10,110.0,1100.0,600.0,500.0
+2025-05-28,ErgoFit Desk Chair,Furniture,North America,4,350.0,1400.0,760.0,640.0
+2025-02-06,Aero Noise-Canceling Buds,Audio,Asia Pacific,8,180.0,1440.0,760.0,680.0
+2025-11-17,Aero Noise-Canceling Buds,Audio,Europe,5,180.0,900.0,475.0,425.0
+2025-02-28,Trailblazer Backpack,Accessories,Europe,7,85.0,595.0,245.0,350.0
+2025-05-17,Trailblazer Backpack,Accessories,Europe,3,85.0,255.0,105.0,150.0
+2025-01-31,Titan Mechanical Keyboard,Electronics,Europe,2,140.0,280.0,150.0,130.0
+2025-10-19,Apex Smartphone,Electronics,Asia Pacific,10,800.0,8000.0,5200.0,2800.0
+2025-08-28,ErgoFit Desk Chair,Furniture,Latin America,2,350.0,700.0,380.0,320.0
+2025-05-20,Aero Noise-Canceling Buds,Audio,Asia Pacific,7,180.0,1260.0,665.0,595.0
+2025-02-11,Trailblazer Backpack,Accessories,Latin America,8,85.0,680.0,280.0,400.0
+2025-08-10,Trailblazer Backpack,Accessories,North America,15,85.0,1275.0,525.0,750.0
+2025-05-09,Aero Noise-Canceling Buds,Audio,Asia Pacific,10,180.0,1800.0,950.0,850.0
+2025-12-12,Quantum Laptop,Electronics,North America,4,1200.0,4800.0,3400.0,1400.0
+2025-12-11,Titan Mechanical Keyboard,Electronics,North America,13,140.0,1820.0,975.0,845.0
+2025-01-21,Titan Mechanical Keyboard,Electronics,Asia Pacific,10,140.0,1400.0,750.0,650.0
+2025-09-23,Titan Mechanical Keyboard,Electronics,Europe,8,140.0,1120.0,600.0,520.0
+2025-04-03,Aero Noise-Canceling Buds,Audio,Latin America,5,180.0,900.0,475.0,425.0
+2025-02-16,Trailblazer Backpack,Accessories,Latin America,8,85.0,680.0,280.0,400.0
