@@ -1,22 +1,34 @@
 import asyncio
+import logging
 from typing import Optional
+
 from app.config import settings
-from app.logging import logger
 from app.providers.base import LLMProvider
+
+logger = logging.getLogger("data_detective.providers.gemini")
 
 
 class GeminiProvider(LLMProvider):
+    """
+    Modern Gemini LLM Provider using the official google-genai SDK.
+    Replaces deprecated google.generativeai package.
+    """
+
     def __init__(self, api_key: Optional[str] = None, model: Optional[str] = None):
         self.api_key = api_key or settings.GEMINI_API_KEY
-        self.model_name = model or settings.GEMINI_MODEL or "gemini-2.0-flash"
+        # Normalize model name with models/ prefix if missing
+        raw_model = model or settings.GEMINI_MODEL or "models/gemini-3.1-flash-lite"
+        if not raw_model.startswith("models/"):
+            raw_model = f"models/{raw_model}"
+        self.model_name = raw_model
         self._client = None
+
         if self.api_key:
             try:
-                import google.generativeai as genai
-                genai.configure(api_key=self.api_key)
-                self._client = genai.GenerativeModel(self.model_name)
+                from google import genai
+                self._client = genai.Client(api_key=self.api_key)
             except Exception as e:
-                logger.warning(f"Failed to configure Gemini client: {e}")
+                logger.warning(f"Failed to initialize google-genai client: {e}")
 
     @property
     def name(self) -> str:
@@ -34,28 +46,26 @@ class GeminiProvider(LLMProvider):
         if not await self.is_available():
             raise RuntimeError("Gemini API key is not configured or client initialization failed.")
 
-        full_prompt = prompt
-        if system_instruction:
-            full_prompt = f"System Instructions:\n{system_instruction}\n\nTask:\n{prompt}"
+        from google.genai import types
 
-        # Run with timeout to prevent hung requests
+        config = types.GenerateContentConfig(
+            temperature=temperature,
+            system_instruction=system_instruction,
+        )
+
         try:
-            loop = asyncio.get_running_loop()
-            generation_config = {"temperature": temperature}
-
+            # Use async API of google-genai
             response = await asyncio.wait_for(
-                loop.run_in_executor(
-                    None,
-                    lambda: self._client.generate_content(
-                        full_prompt,
-                        generation_config=generation_config,
-                    ),
+                self._client.aio.models.generate_content(
+                    model=self.model_name,
+                    contents=prompt,
+                    config=config,
                 ),
-                timeout=10.0,
+                timeout=25.0,
             )
             return response.text
         except asyncio.TimeoutError:
-            raise TimeoutError("Gemini request timed out after 10 seconds.")
+            raise TimeoutError("Gemini request timed out after 25 seconds.")
         except Exception as e:
-            logger.error(f"Gemini generation error: {type(e).__name__}")
+            logger.error(f"Gemini generation error: {type(e).__name__} - {e}")
             raise

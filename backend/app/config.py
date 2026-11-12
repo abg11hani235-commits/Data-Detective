@@ -28,7 +28,7 @@ class Settings(BaseSettings):
     GEMINI_API_KEY: Optional[str] = None
     GROQ_API_KEY: Optional[str] = None
     PRIMARY_LLM_PROVIDER: str = "groq"
-    GEMINI_MODEL: str = "gemini-3.8-flash"
+    GEMINI_MODEL: str = "models/gemini-3.1-flash-lite"
     GROQ_MODEL: str = "openai/gpt-oss-20b"
     ALLOW_MOCK_FALLBACK: bool = True
 

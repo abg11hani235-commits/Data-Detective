@@ -69,8 +69,34 @@ class ExecutionOutput(BaseModel):
     error_message: Optional[str] = None
 
 
+class EvidenceItem(BaseModel):
+    id: str
+    source: str
+    metric_name: str
+    dimension: Optional[str] = None
+    entity: Optional[str] = None
+    aggregation: Optional[str] = None
+    value: float
+    raw_repr: str
+
+
+class Claim(BaseModel):
+    id: str
+    statement: str
+    metric_name: str
+    dimension: Optional[str] = None
+    entity: Optional[str] = None
+    aggregation: Optional[str] = None
+    claimed_value: Optional[float] = None
+    comparison_direction: Optional[str] = None
+    evidence_id: Optional[str] = None
+    validation_status: str = "pending"  # "verified", "unsupported", "context_mismatch", "contradicted", "missing_evidence"
+    reason: Optional[str] = None
+
+
 class AnalysisInsights(BaseModel):
     findings: List[str] = Field(default_factory=list)
+    claims: List[Claim] = Field(default_factory=list)
     interpretation: str = ""
     caveats: List[str] = Field(default_factory=list)
 

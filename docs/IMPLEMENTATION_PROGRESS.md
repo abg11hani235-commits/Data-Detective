@@ -35,10 +35,10 @@ Statuses: `NOT STARTED` | `IN PROGRESS` | `BLOCKED` | `IMPLEMENTED` | `TESTED` |
 
 | Task ID | Item | Target Component | Status | Acceptance Criteria / Tests |
 |---|---|---|---|---|
-| **P2-01** | Structured Evidence Registry & Claim Schema | `agent/verifier.py`, `models/schemas.py` | NOT STARTED | Claim-to-Evidence verification; context-aware numerical grounding |
-| **P2-02** | Modernize to `google-genai` SDK | `providers/gemini.py`, `config.py` | NOT STARTED | Clean migration from sunsetted `google.generativeai` |
-| **P2-03** | LangGraph State Guards & Real Validation Nodes | `agent/graph.py` | NOT STARTED | Conditional routing on dataset/code failure; real `validate_results` |
-| **P2-04** | Provider Fallback & Production Mock Disablement | `providers/manager.py` | NOT STARTED | `ALLOW_MOCK_FALLBACK=False` in prod, latency/token telemetry |
+| **P2-01** | Structured Evidence Registry & Claim Schema | `agent/verifier.py`, `models/schemas.py` | **VERIFIED** | Claim-to-Evidence verification; context-aware numerical grounding (7/7 tests pass) |
+| **P2-02** | Modernize to `google-genai` SDK | `providers/gemini.py`, `config.py` | **VERIFIED** | Clean migration from sunsetted `google.generativeai` to `google-genai` (live API passes) |
+| **P2-03** | LangGraph State Guards & Real Validation Nodes | `agent/graph.py` | **VERIFIED** | Conditional routing on dataset/code failure; real `validate_results` (3/3 tests pass) |
+| **P2-04** | Provider Fallback & Production Mock Disablement | `providers/manager.py` | **VERIFIED** | `ALLOW_MOCK_FALLBACK=False` in prod, latency telemetry, explicit provider order (4/4 tests pass) |
 
 ---
 

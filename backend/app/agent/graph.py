@@ -1,4 +1,5 @@
 import json
+import math
 import re
 import time
 from pathlib import Path
@@ -14,8 +15,10 @@ from app.agent.prompts import (
     SYSTEM_ANALYST_PROMPT,
 )
 from app.agent.state import AgentState
+from app.agent.verifier import EvidenceRegistry, FindingsValidator
 from app.config import settings
 from app.logging import logger
+from app.models.schemas import Claim
 from app.providers.manager import provider_manager
 from app.sandbox.docker_runner import DockerSandboxRunner
 from app.sandbox.runner import SandboxRunner
@@ -28,13 +31,26 @@ def extract_python_code(raw_text: str) -> str:
     matches = re.findall(pattern, raw_text, re.DOTALL)
     if matches:
         return matches[0].strip()
-    # If no markdown fences, return cleaned text
     return raw_text.strip()
+
+
+def sanitize_numerical_data(val: Any) -> Any:
+    """Recursively clean NaN, Inf, and non-serializable numbers for robust JSON serialization."""
+    if isinstance(val, float):
+        if math.isnan(val) or math.isinf(val):
+            return None
+        return val
+    elif isinstance(val, dict):
+        return {k: sanitize_numerical_data(v) for k, v in val.items()}
+    elif isinstance(val, (list, tuple)):
+        return [sanitize_numerical_data(v) for v in val]
+    return val
 
 
 def build_analysis_graph(status_callback: Optional[Callable[[str, str], None]] = None) -> StateGraph:
     """
-    Constructs the LangGraph stateful analysis pipeline.
+    Constructs the LangGraph stateful analysis pipeline with robust conditional routing,
+    AST security gates, self-healing code repair, and evidence-based synthesis.
     """
 
     def notify(stage: str, message: str):
@@ -47,13 +63,19 @@ def build_analysis_graph(status_callback: Optional[Callable[[str, str], None]] =
     # Node 1: Validate Dataset
     async def validate_dataset(state: AgentState) -> Dict[str, Any]:
         notify("validating", "Validating dataset integrity and accessibility...")
-        path = Path(state["dataset_path"])
+        path_str = state.get("dataset_path")
+        if not path_str:
+            return {
+                "errors": ["Dataset path not specified in state."],
+                "execution_status": "error",
+            }
+        path = Path(path_str)
         if not path.exists():
             return {
                 "errors": [f"Dataset file at {path} does not exist."],
                 "execution_status": "error",
             }
-        return {"errors": []}
+        return {"errors": [], "execution_status": "valid"}
 
     # Node 2: Profile Dataset (summary string for prompt)
     async def profile_dataset(state: AgentState) -> Dict[str, Any]:
@@ -63,12 +85,17 @@ def build_analysis_graph(status_callback: Optional[Callable[[str, str], None]] =
     # Node 3: Understand Question & Plan Analysis
     async def plan_analysis(state: AgentState) -> Dict[str, Any]:
         notify("planning", "Formulating analysis plan based on dataset schema...")
-        meta = state["dataset_metadata"]
+        meta = state.get("dataset_metadata", {})
         col_summary = []
-        for col in state["column_profiles"][:35]:  # Bounded prompt context
+        for col in state.get("column_profiles", [])[:35]:  # Bounded prompt context
+            c_name = col.get("name", "column")
+            c_type = col.get("inferred_type", "unknown")
+            c_role = col.get("semantic_role", "feature")
+            c_nulls = col.get("null_percentage", 0)
+            c_uniq = col.get("unique_count", 0)
+            c_samples = col.get("sample_values", [])[:3]
             col_summary.append(
-                f"- {col['name']} ({col['inferred_type']}, {col['semantic_role']}): "
-                f"nulls={col['null_percentage']}%, unique={col['unique_count']}, samples={col['sample_values'][:3]}"
+                f"- {c_name} ({c_type}, {c_role}): nulls={c_nulls}%, unique={c_uniq}, samples={c_samples}"
             )
 
         prompt = PLANNING_PROMPT_TEMPLATE.format(
@@ -83,8 +110,9 @@ def build_analysis_graph(status_callback: Optional[Callable[[str, str], None]] =
 
         plan_text, provider = await provider_manager.generate_with_fallback(
             prompt=prompt,
-            system_instruction="You are a data architect defining a concise data analysis plan.",
+            system_instruction="You are a senior data architect defining a concise analytical plan.",
             temperature=0.1,
+            on_status_update=lambda msg: notify("planning", msg),
         )
 
         return {"analysis_plan": plan_text, "provider_used": provider}
@@ -92,11 +120,14 @@ def build_analysis_graph(status_callback: Optional[Callable[[str, str], None]] =
     # Node 4: Generate Python
     async def generate_python(state: AgentState) -> Dict[str, Any]:
         notify("coding", "Generating Python analysis code with Pandas & Plotly...")
-        meta = state["dataset_metadata"]
+        meta = state.get("dataset_metadata", {})
         col_summary = []
-        for col in state["column_profiles"][:35]:
+        for col in state.get("column_profiles", [])[:35]:
+            c_name = col.get("name", "column")
+            c_type = col.get("inferred_type", "unknown")
+            c_samples = col.get("sample_values", [])[:3]
             col_summary.append(
-                f"- {col['name']} ({col['inferred_type']}): samples={col['sample_values'][:3]}"
+                f"- {c_name} ({c_type}): samples={c_samples}"
             )
 
         prompt = CODE_GEN_PROMPT_TEMPLATE.format(
@@ -104,7 +135,7 @@ def build_analysis_graph(status_callback: Optional[Callable[[str, str], None]] =
             row_count=meta.get("row_count", 0),
             column_count=meta.get("column_count", 0),
             column_profiles_summary="\n".join(col_summary),
-            analysis_plan=state["analysis_plan"],
+            analysis_plan=state.get("analysis_plan", ""),
             question=state["user_question"],
             conversation_context=json.dumps(state.get("conversation_context", [])[-3:], default=str),
         )
@@ -113,6 +144,7 @@ def build_analysis_graph(status_callback: Optional[Callable[[str, str], None]] =
             prompt=prompt,
             system_instruction=SYSTEM_ANALYST_PROMPT,
             temperature=0.1,
+            on_status_update=lambda msg: notify("coding", msg),
         )
         clean_code = extract_python_code(raw_code)
         return {"generated_code": clean_code, "provider_used": provider}
@@ -120,14 +152,15 @@ def build_analysis_graph(status_callback: Optional[Callable[[str, str], None]] =
     # Node 5: Validate Generated Code (AST)
     async def validate_generated_code(state: AgentState) -> Dict[str, Any]:
         notify("validating_code", "Inspecting code safety with AST security validator...")
-        is_safe, violations = CodeSecurityChecker.validate_code(state["generated_code"])
+        code = state.get("generated_code", "")
+        is_safe, violations = CodeSecurityChecker.validate_code(code)
         if not is_safe:
             return {
                 "code_valid": False,
-                "execution_status": "error",
+                "execution_status": "security_violation",
                 "errors": violations,
             }
-        return {"code_valid": True, "errors": []}
+        return {"code_valid": True, "errors": [], "execution_status": "code_approved"}
 
     # Node 6: Execute Python in Sandbox
     async def execute_python(state: AgentState) -> Dict[str, Any]:
@@ -154,13 +187,13 @@ def build_analysis_graph(status_callback: Optional[Callable[[str, str], None]] =
 
     # Node 7: Repair Analysis (self-healing loop)
     async def repair_analysis(state: AgentState) -> Dict[str, Any]:
-        new_retries = state["retry_count"] + 1
-        notify("repairing", f"Repairing execution issue (attempt {new_retries}/{state['max_retries']})...")
-        cols_list = [c["name"] for c in state["column_profiles"]]
+        new_retries = state.get("retry_count", 0) + 1
+        notify("repairing", f"Repairing execution issue (attempt {new_retries}/{state.get('max_retries', 2)})...")
+        cols_list = [c.get("name", "") for c in state.get("column_profiles", [])]
 
-        error_msg = "; ".join(state["errors"]) or "Results file output/results.json was not created."
+        error_msg = "; ".join(state.get("errors", [])) or "Results file output/results.json was not created."
         prompt = CODE_REPAIR_PROMPT_TEMPLATE.format(
-            original_code=state["generated_code"],
+            original_code=state.get("generated_code", ""),
             error_message=error_msg,
             columns_list=", ".join(cols_list),
         )
@@ -169,6 +202,7 @@ def build_analysis_graph(status_callback: Optional[Callable[[str, str], None]] =
             prompt=prompt,
             system_instruction=SYSTEM_ANALYST_PROMPT,
             temperature=0.1,
+            on_status_update=lambda msg: notify("repairing", msg),
         )
         clean_code = extract_python_code(raw_code)
         return {
@@ -177,10 +211,32 @@ def build_analysis_graph(status_callback: Optional[Callable[[str, str], None]] =
             "provider_used": provider,
         }
 
-    # Node 8: Validate Results
+    # Node 8: Real Results Validator
     async def validate_results(state: AgentState) -> Dict[str, Any]:
-        notify("validating_results", "Validating computed metrics and table outputs...")
-        return {}
+        notify("validating_results", "Validating computed metrics and table schemas...")
+        metrics = sanitize_numerical_data(state.get("metrics", {}))
+        tables = sanitize_numerical_data(state.get("tables", []))
+        warnings = list(state.get("warnings", []))
+
+        # Check if output is empty
+        if not metrics and not tables:
+            warnings.append("Sandbox execution completed but produced no metrics or summary tables.")
+
+        # Validate tabular structure
+        valid_tables = []
+        for t in tables:
+            if isinstance(t, dict):
+                data = t.get("data") or t.get("rows")
+                if isinstance(data, list):
+                    valid_tables.append(t)
+                else:
+                    warnings.append(f"Table '{t.get('name', 'table')}' had malformed row structure.")
+
+        return {
+            "metrics": metrics if isinstance(metrics, dict) else {},
+            "tables": valid_tables,
+            "warnings": warnings,
+        }
 
     # Node 9: Generate Visualizations
     async def generate_visualizations(state: AgentState) -> Dict[str, Any]:
@@ -192,9 +248,9 @@ def build_analysis_graph(status_callback: Optional[Callable[[str, str], None]] =
                 if isinstance(fig, dict):
                     data = fig.get("data", [])
                     if isinstance(data, list) and len(data) > 0:
-                        sanitized_charts.append(chart)
+                        sanitized_charts.append(sanitize_numerical_data(chart))
                     elif fig.get("layout"):
-                        sanitized_charts.append(chart)
+                        sanitized_charts.append(sanitize_numerical_data(chart))
         return {"charts": sanitized_charts}
 
     # Node 10: Generate Insights
@@ -207,8 +263,8 @@ def build_analysis_graph(status_callback: Optional[Callable[[str, str], None]] =
         # Formulate summary for synthesis
         tables_summary = []
         for t in tables[:3]:
-            rows = t.get("data", [])[:5]
-            tables_summary.append(f"Table '{t.get('name')}': {json.dumps(rows, default=str)}")
+            rows = (t.get("data") or [])[:5]
+            tables_summary.append(f"Table '{t.get('name', 'summary')}': {json.dumps(rows, default=str)}")
 
         charts_summary = [c.get("caption", "Analytical chart") for c in charts]
 
@@ -223,11 +279,11 @@ def build_analysis_graph(status_callback: Optional[Callable[[str, str], None]] =
             prompt=prompt,
             system_instruction="You are a senior data scientist synthesizing factual insights without fabrication.",
             temperature=0.2,
+            on_status_update=lambda msg: notify("synthesizing", msg),
         )
 
-        insights_obj = {"findings": [], "interpretation": "", "caveats": []}
+        insights_obj = {"findings": [], "claims": [], "interpretation": "", "caveats": []}
         try:
-            # Clean possible markdown fences
             clean_json = raw_insights.strip()
             if clean_json.startswith("```"):
                 clean_json = re.sub(r"^```(?:json)?\s*|\s*```$", "", clean_json, flags=re.DOTALL).strip()
@@ -236,13 +292,11 @@ def build_analysis_graph(status_callback: Optional[Callable[[str, str], None]] =
             insights_obj["interpretation"] = parsed.get("interpretation", "")
             insights_obj["caveats"] = parsed.get("caveats", [])
         except Exception:
-            # If JSON parsing fails, fall back to clean sentence extraction
             insights_obj["findings"] = [raw_insights[:200]]
             insights_obj["interpretation"] = "Calculated directly from the sandboxed Python execution."
             insights_obj["caveats"] = ["Results are purely observational based on the uploaded records."]
 
         # Anti-hallucination verification pass: ensure numerical claims match computed results
-        from app.agent.verifier import FindingsValidator
         approved_findings, unverified_notes = FindingsValidator.verify_findings(
             findings=insights_obj["findings"],
             metrics=metrics,
@@ -256,27 +310,42 @@ def build_analysis_graph(status_callback: Optional[Callable[[str, str], None]] =
         notify("complete", "Analysis complete and verified.")
         return {"insights": insights_obj, "provider_used": provider}
 
-    # Conditional routing function
-    def check_execution_status(state: AgentState) -> str:
-        if state["execution_status"] != "success":
-            if state["retry_count"] < state["max_retries"]:
-                return "repair_analysis"
-            return "handle_failure"
-        return "validate_results"
-
-    # Node: Handle Failure
+    # Node 11: Handle Failure
     async def handle_failure(state: AgentState) -> Dict[str, Any]:
         notify("failed", "Analysis could not complete successfully.")
         err_msg = state.get("errors", ["Execution failed in sandbox."])[0]
         return {
             "insights": {
                 "findings": ["The analysis could not complete within the sandbox constraints."],
+                "claims": [],
                 "interpretation": f"Execution halted due to: {err_msg}",
                 "caveats": ["Please check your question phrasing or verify dataset column names."],
             }
         }
 
-    # Build Graph
+    # Conditional Router 1: Dataset validity check
+    def route_dataset_validation(state: AgentState) -> str:
+        if state.get("execution_status") == "error" or state.get("errors"):
+            return "handle_failure"
+        return "profile_dataset"
+
+    # Conditional Router 2: Code security gate
+    def route_code_validation(state: AgentState) -> str:
+        if not state.get("code_valid", True):
+            if state.get("retry_count", 0) < state.get("max_retries", 2):
+                return "repair_analysis"
+            return "handle_failure"
+        return "execute_python"
+
+    # Conditional Router 3: Execution status check
+    def route_execution_status(state: AgentState) -> str:
+        if state.get("execution_status") != "success":
+            if state.get("retry_count", 0) < state.get("max_retries", 2):
+                return "repair_analysis"
+            return "handle_failure"
+        return "validate_results"
+
+    # Build StateGraph
     workflow = StateGraph(AgentState)
 
     workflow.add_node("validate_dataset", validate_dataset)
@@ -291,17 +360,35 @@ def build_analysis_graph(status_callback: Optional[Callable[[str, str], None]] =
     workflow.add_node("generate_insights", generate_insights)
     workflow.add_node("handle_failure", handle_failure)
 
-    # Add Edges
+    # Edges with explicit guards
     workflow.add_edge(START, "validate_dataset")
-    workflow.add_edge("validate_dataset", "profile_dataset")
+
+    workflow.add_conditional_edges(
+        "validate_dataset",
+        route_dataset_validation,
+        {
+            "profile_dataset": "profile_dataset",
+            "handle_failure": "handle_failure",
+        },
+    )
+
     workflow.add_edge("profile_dataset", "plan_analysis")
     workflow.add_edge("plan_analysis", "generate_python")
     workflow.add_edge("generate_python", "validate_generated_code")
-    workflow.add_edge("validate_generated_code", "execute_python")
+
+    workflow.add_conditional_edges(
+        "validate_generated_code",
+        route_code_validation,
+        {
+            "execute_python": "execute_python",
+            "repair_analysis": "repair_analysis",
+            "handle_failure": "handle_failure",
+        },
+    )
 
     workflow.add_conditional_edges(
         "execute_python",
-        check_execution_status,
+        route_execution_status,
         {
             "repair_analysis": "repair_analysis",
             "validate_results": "validate_results",
