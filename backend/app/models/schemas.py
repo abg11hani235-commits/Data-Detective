@@ -161,3 +161,42 @@ class UserResponse(BaseModel):
     is_active: bool
     created_at: str
 
+
+class CorrelationPair(BaseModel):
+    col1: str
+    col2: str
+    correlation: float
+    strength: str  # "very_strong", "strong", "moderate", "weak"
+
+
+class OutlierSummary(BaseModel):
+    column: str
+    iqr_outliers_count: int
+    iqr_outliers_pct: float
+    zscore_outliers_count: int
+    zscore_outliers_pct: float
+    lower_bound: float
+    upper_bound: float
+
+
+class DataQualityWarning(BaseModel):
+    warning_type: str  # "high_missingness", "zero_variance", "high_cardinality", "potential_leakage", "high_outliers"
+    column: Optional[str] = None
+    description: str
+    severity: str  # "high", "medium", "low"
+
+
+class AdvancedEDAResult(BaseModel):
+    dataset_id: str
+    sampled: bool
+    sample_size: int
+    total_rows: int
+    missingness: Dict[str, Any]
+    top_positive_correlations: List[CorrelationPair]
+    top_negative_correlations: List[CorrelationPair]
+    distribution_metrics: Dict[str, Dict[str, Any]]
+    outliers: List[OutlierSummary]
+    quality_warnings: List[DataQualityWarning]
+    recommendations: List[str]
+
+

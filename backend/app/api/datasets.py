@@ -1,10 +1,12 @@
 from typing import Optional
 from fastapi import APIRouter, Depends, File, HTTPException, UploadFile, status
 
+import pandas as pd
 from app.auth.dependencies import get_optional_current_user, verify_ownership
 from app.ingestion.service import IngestionService
 from app.models.database import User
-from app.models.schemas import DatasetMetadata, DatasetProfile
+from app.models.schemas import AdvancedEDAResult, DatasetMetadata, DatasetProfile
+from app.profiler.advanced_eda import AdvancedEDAEngine
 from app.storage.service import storage
 
 router = APIRouter(prefix="/api/datasets", tags=["datasets"])
@@ -66,6 +68,35 @@ async def get_dataset_preview(
     if not profile:
         raise HTTPException(status_code=404, detail="Dataset profile not found.")
     return {"preview_rows": profile.preview_rows, "columns": [c.name for c in profile.columns]}
+
+
+@router.get("/{dataset_id}/advanced-eda", response_model=AdvancedEDAResult)
+async def get_advanced_eda(
+    dataset_id: str,
+    current_user: Optional[User] = Depends(get_optional_current_user),
+):
+    meta = storage.get_dataset_meta(dataset_id)
+    if not meta:
+        raise HTTPException(status_code=404, detail="Dataset not found.")
+    verify_ownership(meta.user_id, current_user, "Dataset")
+
+    path = storage.get_dataset_path(dataset_id)
+    if not path or not path.exists():
+        raise HTTPException(status_code=404, detail="Dataset physical file not found.")
+
+    try:
+        if meta.file_type == "csv":
+            df = pd.read_csv(path)
+        elif meta.file_type in ["xlsx", "xls"]:
+            df = pd.read_excel(path)
+        elif meta.file_type == "json":
+            df = pd.read_json(path)
+        else:
+            raise HTTPException(status_code=400, detail="Unsupported dataset file type.")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to read dataset: {str(e)}")
+
+    return AdvancedEDAEngine.run_eda(df, dataset_id=dataset_id)
 
 
 @router.delete("/{dataset_id}", status_code=status.HTTP_204_NO_CONTENT)

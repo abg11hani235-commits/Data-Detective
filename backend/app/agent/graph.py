@@ -14,6 +14,7 @@ from app.agent.prompts import (
     PLANNING_PROMPT_TEMPLATE,
     SYSTEM_ANALYST_PROMPT,
 )
+from app.agent.planner import AnalyticalPlanner
 from app.agent.state import AgentState
 from app.agent.verifier import EvidenceRegistry, FindingsValidator
 from app.config import settings
@@ -98,6 +99,14 @@ def build_analysis_graph(status_callback: Optional[Callable[[str, str], None]] =
                 f"- {c_name} ({c_type}, {c_role}): nulls={c_nulls}%, unique={c_uniq}, samples={c_samples}"
             )
 
+        # Generate structured analytical plan decomposition
+        structured_plan = AnalyticalPlanner.create_plan(
+            question=state["user_question"],
+            column_profiles=state.get("column_profiles", []),
+            row_count=meta.get("row_count", 0),
+        )
+        plan_markdown = structured_plan.to_formatted_markdown()
+
         prompt = PLANNING_PROMPT_TEMPLATE.format(
             filename=meta.get("filename", "dataset"),
             file_type=state.get("file_type", "csv"),
@@ -107,6 +116,7 @@ def build_analysis_graph(status_callback: Optional[Callable[[str, str], None]] =
             conversation_context=json.dumps(state.get("conversation_context", [])[-3:], default=str),
             question=state["user_question"],
         )
+        prompt += f"\n\nBaseline Structured Step Decomposition:\n{plan_markdown}"
 
         plan_text, provider = await provider_manager.generate_with_fallback(
             prompt=prompt,
@@ -115,7 +125,8 @@ def build_analysis_graph(status_callback: Optional[Callable[[str, str], None]] =
             on_status_update=lambda msg: notify("planning", msg),
         )
 
-        return {"analysis_plan": plan_text, "provider_used": provider}
+        full_plan = f"{plan_markdown}\n\n### LLM Strategy & Edge Cases\n{plan_text}"
+        return {"analysis_plan": full_plan, "provider_used": provider}
 
     # Node 4: Generate Python
     async def generate_python(state: AgentState) -> Dict[str, Any]:

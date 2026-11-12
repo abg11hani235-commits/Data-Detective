@@ -46,10 +46,10 @@ Statuses: `NOT STARTED` | `IN PROGRESS` | `BLOCKED` | `IMPLEMENTED` | `TESTED` |
 
 | Task ID | Item | Target Component | Status | Acceptance Criteria / Tests |
 |---|---|---|---|---|
-| **P3-01** | Modular Advanced EDA Engine | `profiler/advanced_eda.py` | NOT STARTED | Missingness, correlations, distributions, outliers, sampling |
-| **P3-02** | Statistical Testing & Inference Framework | `analytics/statistics.py` | NOT STARTED | Normality, t-test, chi-square, correlation vs causation caveats |
-| **P3-03** | Multi-Step Analytical Planning & Step Execution | `agent/planner.py`, `agent/graph.py` | NOT STARTED | Step decomposition, intermediate verification, final synthesis |
-| **P3-04** | 100+ Question Analytical Evaluation Benchmark | `tests/benchmark/` | NOT STARTED | 100 question ground-truth suite across 8 analytical categories |
+| **P3-01** | Modular Advanced EDA Engine | `profiler/advanced_eda.py` | **VERIFIED** | Missingness, correlations, distributions, outliers, sampling (5/5 tests pass) |
+| **P3-02** | Statistical Testing & Inference Framework | `analytics/statistics.py` | **VERIFIED** | Normality, Welch's t-test, Mann-Whitney U, Chi-square, causal caveats (5/5 tests pass) |
+| **P3-03** | Multi-Step Analytical Planning & Step Execution | `agent/planner.py`, `agent/graph.py` | **VERIFIED** | Step decomposition, intent classification, plan formatting (tested in graph & benchmark) |
+| **P3-04** | 100+ Question Analytical Evaluation Benchmark | `tests/benchmark/` | **VERIFIED** | 105 question ground-truth benchmark suite (97.1% intent, 100% ground-truth, 100% evidence) |
 
 ---
 
