@@ -200,3 +200,18 @@ class AdvancedEDAResult(BaseModel):
     recommendations: List[str]
 
 
+class InvestigationSummary(BaseModel):
+    session_id: str
+    title: Optional[str] = None
+    dataset_id: Optional[str] = None
+    dataset_name: Optional[str] = None
+    created_at: str
+    history_count: int = 0
+    last_question: Optional[str] = None
+
+
+class InvestigationUpdateRequest(BaseModel):
+    title: str = Field(..., min_length=1, max_length=255)
+
+
+

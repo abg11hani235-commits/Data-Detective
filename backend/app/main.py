@@ -7,6 +7,7 @@ from fastapi.responses import JSONResponse
 
 from app.api.auth import router as auth_router
 from app.api.datasets import router as datasets_router
+from app.api.investigations import router as investigations_router
 from app.api.reports import router as reports_router
 from app.api.samples import router as samples_router
 from app.api.sessions import router as sessions_router
@@ -24,6 +25,8 @@ async def lifespan(app: FastAPI):
     logger.info("Data Detective Backend initialized successfully.")
     yield
     # Shutdown clean up
+    from app.db.session import close_db
+    await close_db()
     logger.info("Data Detective Backend shutting down.")
 
 
@@ -107,5 +110,6 @@ async def health_check():
 app.include_router(auth_router)
 app.include_router(datasets_router)
 app.include_router(sessions_router)
+app.include_router(investigations_router)
 app.include_router(samples_router)
 app.include_router(reports_router)

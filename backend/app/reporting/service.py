@@ -230,3 +230,98 @@ class ReportExporter:
 </body>
 </html>"""
         return html_template
+
+    @classmethod
+    def generate_excel(cls, analysis: AnalysisResponse, profile: DatasetProfile) -> bytes:
+        import io
+        import openpyxl
+        from openpyxl.styles import Font, PatternFill, Alignment
+
+        wb = openpyxl.Workbook()
+
+        # Styles
+        header_font = Font(name="Calibri", size=11, bold=True, color="FFFFFF")
+        header_fill = PatternFill(start_color="1E293B", end_color="1E293B", fill_type="solid")
+        title_font = Font(name="Calibri", size=14, bold=True, color="0F172A")
+        bold_font = Font(name="Calibri", size=11, bold=True)
+
+        # Sheet 1: Executive Summary
+        ws_summary = wb.active
+        ws_summary.title = "Executive Summary"
+        ws_summary.views.sheetView[0].showGridLines = True
+
+        ws_summary.cell(row=1, column=1, value="Data Detective Analysis Report").font = title_font
+        ws_summary.cell(row=3, column=1, value="Dataset:").font = bold_font
+        ws_summary.cell(row=3, column=2, value=profile.metadata.filename)
+        ws_summary.cell(row=4, column=1, value="Analysis Question:").font = bold_font
+        ws_summary.cell(row=4, column=2, value=analysis.question)
+        ws_summary.cell(row=5, column=1, value="Generated At:").font = bold_font
+        ws_summary.cell(row=5, column=2, value=analysis.timestamp)
+
+        ws_summary.cell(row=7, column=1, value="Interpretation:").font = bold_font
+        ws_summary.cell(row=7, column=2, value=analysis.insights.interpretation)
+
+        ws_summary.cell(row=9, column=1, value="Key Findings:").font = bold_font
+        curr_row = 10
+        for f in analysis.insights.findings:
+            ws_summary.cell(row=curr_row, column=2, value=f"- {f}")
+            curr_row += 1
+
+        curr_row += 1
+        ws_summary.cell(row=curr_row, column=1, value="Caveats & Boundaries:").font = bold_font
+        curr_row += 1
+        for c in analysis.insights.caveats:
+            ws_summary.cell(row=curr_row, column=2, value=f"- {c}")
+            curr_row += 1
+
+        ws_summary.column_dimensions["A"].width = 25
+        ws_summary.column_dimensions["B"].width = 80
+
+        # Sheet 2: Metrics
+        if analysis.metrics:
+            ws_metrics = wb.create_sheet(title="Computed Metrics")
+            ws_metrics.views.sheetView[0].showGridLines = True
+
+            ws_metrics.cell(row=1, column=1, value="Metric Name").font = header_font
+            ws_metrics.cell(row=1, column=1).fill = header_fill
+            ws_metrics.cell(row=1, column=2, value="Computed Value").font = header_font
+            ws_metrics.cell(row=1, column=2).fill = header_fill
+
+            m_row = 2
+            for k, v in analysis.metrics.items():
+                ws_metrics.cell(row=m_row, column=1, value=k.replace("_", " ").title())
+                ws_metrics.cell(row=m_row, column=2, value=str(v))
+                m_row += 1
+
+            ws_metrics.column_dimensions["A"].width = 30
+            ws_metrics.column_dimensions["B"].width = 25
+
+        # Sheet 3+: Tabular Data
+        for idx, tbl in enumerate(analysis.tables, 1):
+            t_name = tbl.get("name", f"Table_{idx}")[:30].replace(" ", "_")
+            ws_table = wb.create_sheet(title=t_name)
+            ws_table.views.sheetView[0].showGridLines = True
+
+            cols = tbl.get("columns", [])
+            data = tbl.get("data", []) or tbl.get("rows", [])
+
+            if cols:
+                for col_idx, col_name in enumerate(cols, 1):
+                    cell = ws_table.cell(row=1, column=col_idx, value=col_name)
+                    cell.font = header_font
+                    cell.fill = header_fill
+                    ws_table.column_dimensions[openpyxl.utils.get_column_letter(col_idx)].width = max(len(str(col_name)) + 4, 14)
+
+                for r_idx, row in enumerate(data, 2):
+                    if isinstance(row, dict):
+                        for col_idx, col_name in enumerate(cols, 1):
+                            ws_table.cell(row=r_idx, column=col_idx, value=row.get(col_name))
+                    elif isinstance(row, (list, tuple)):
+                        for col_idx, val in enumerate(row[:len(cols)], 1):
+                            ws_table.cell(row=r_idx, column=col_idx, value=val)
+
+        buffer = io.BytesIO()
+        wb.save(buffer)
+        buffer.seek(0)
+        return buffer.getvalue()
+

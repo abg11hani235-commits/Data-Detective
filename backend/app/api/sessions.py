@@ -75,7 +75,7 @@ async def attach_dataset(
         raise HTTPException(status_code=404, detail="Dataset not found.")
     verify_ownership(meta.user_id, current_user, "Dataset")
 
-    storage.set_session_dataset(session_id, dataset_id)
+    await storage.set_session_dataset_async(session_id, dataset_id)
     return {"status": "ok", "session_id": session_id, "dataset_id": dataset_id}
 
 
@@ -226,7 +226,7 @@ async def ask_question(
         timestamp=datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S UTC"),
     )
 
-    storage.add_analysis(response)
+    await storage.add_analysis_async(response)
 
     # Broadcast final completion event
     await broadcaster.broadcast(

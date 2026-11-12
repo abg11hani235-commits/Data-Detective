@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from "react";
 import { AnalysisResponse } from "@/types";
 import { api } from "@/lib/api";
-import { X, Download, FileText, Check } from "lucide-react";
+import { X, Download, FileText, Check, FileSpreadsheet } from "lucide-react";
 
 interface ReportModalProps {
   analysis: AnalysisResponse | null;
@@ -94,6 +94,16 @@ export const ReportModal: React.FC<ReportModalProps> = ({ analysis, onClose }) =
               {copied ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <FileText className="w-3.5 h-3.5 text-cyan-400" />}
               <span>{copied ? "Copied Markdown" : "Copy Markdown"}</span>
             </button>
+
+            <a
+              href={api.getReportDownloadUrl(analysis.id, "excel", analysis.session_id)}
+              download
+              className="flex items-center gap-1.5 rounded-lg border border-emerald-700 bg-emerald-950/60 px-3 py-1.5 text-xs font-semibold text-emerald-400 hover:bg-emerald-900/80 hover:text-emerald-300 transition"
+              title="Download structured multi-sheet Excel workbook"
+            >
+              <FileSpreadsheet className="w-3.5 h-3.5" />
+              Download Excel
+            </a>
 
             <a
               href={api.getReportDownloadUrl(analysis.id, "html", analysis.session_id)}

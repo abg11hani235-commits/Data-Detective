@@ -1,0 +1,66 @@
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: data-detective-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: data_detective
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-data_detective_secret}
+      POSTGRES_DB: data_detective
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U data_detective -d data_detective"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: data-detective-backend
+    restart: unless-stopped
+    environment:
+      DATABASE_URL: postgresql+asyncpg://data_detective:${POSTGRES_PASSWORD:-data_detective_secret}@db:5432/data_detective
+      ENVIRONMENT: ${ENVIRONMENT:-production}
+      SANDBOX_MODE: ${SANDBOX_MODE:-subprocess}
+      SECRET_KEY: ${SECRET_KEY:-super-secret-key-change-me-in-production}
+      GROQ_API_KEY: ${GROQ_API_KEY:-}
+      GEMINI_API_KEY: ${GEMINI_API_KEY:-}
+      PORT: 8000
+    ports:
+      - "8000:8000"
+    volumes:
+      - backend_uploads:/app/data/uploads
+      - /var/run/docker.sock:/var/run/docker.sock
+    depends_on:
+      db:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/api/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: data-detective-frontend
+    restart: unless-stopped
+    environment:
+      BACKEND_INTERNAL_URL: http://backend:8000
+      PORT: 3000
+    ports:
+      - "3000:3000"
+    depends_on:
+      backend:
+        condition: service_healthy
+
+volumes:
+  postgres_data:
+  backend_uploads:

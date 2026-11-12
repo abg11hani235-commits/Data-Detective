@@ -77,7 +77,7 @@ async def get_html_report(
 async def download_report(
     analysis_id: str,
     session_id: str = Query(..., description="Active session ID"),
-    format: str = Query("html", enum=["html", "markdown"]),
+    format: str = Query("html", enum=["html", "markdown", "excel"]),
     current_user: Optional[User] = Depends(get_optional_current_user),
 ):
     analysis = verify_session_report_access(analysis_id, session_id, current_user)
@@ -98,6 +98,13 @@ async def download_report(
             content=content,
             media_type="text/html",
             headers={"Content-Disposition": f"attachment; filename=data_detective_{filename_safe}_report.html"},
+        )
+    elif format == "excel":
+        excel_bytes = ReportExporter.generate_excel(analysis, profile)
+        return Response(
+            content=excel_bytes,
+            media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+            headers={"Content-Disposition": f"attachment; filename=data_detective_{filename_safe}_report.xlsx"},
         )
     else:
         content = ReportExporter.generate_markdown(analysis, profile)

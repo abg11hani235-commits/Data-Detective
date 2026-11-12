@@ -57,7 +57,7 @@ Statuses: `NOT STARTED` | `IN PROGRESS` | `BLOCKED` | `IMPLEMENTED` | `TESTED` |
 
 | Task ID | Item | Target Component | Status | Acceptance Criteria / Tests |
 |---|---|---|---|---|
-| **P4-01** | Saved Investigations & Workspace Management | `api/investigations.py`, frontend | NOT STARTED | Persisted multi-turn analytical projects |
-| **P4-02** | Comprehensive Analytical Reports (PDF/Excel Export) | `reporting/service.py` | NOT STARTED | Formatted Markdown, HTML, PDF/Excel analytical export |
-| **P4-03** | Frontend Progress States & Grounding UI | `frontend/src/` | NOT STARTED | Evidence drawer, claim verification badges, provider telemetry |
-| **P4-04** | CI/CD Automation, Logging & Docker Compose | Root repo, GitHub Actions | NOT STARTED | Automated testing pipeline, structured JSON logging, one-command run |
+| **P4-01** | Saved Investigations & Workspace Management | `api/investigations.py`, `storage/` | **VERIFIED** | CRUD endpoints (`GET/PATCH/DELETE /api/investigations`), session title updates, cascade history (2/2 tests pass) |
+| **P4-02** | Comprehensive Analytical Reports (PDF/Excel Export) | `reporting/service.py`, `api/reports.py` | **VERIFIED** | Multi-sheet styled Excel workbook via openpyxl, formatted HTML/Markdown (`GET /api/reports/{id}/download?format=excel`, 2/2 tests pass) |
+| **P4-03** | Frontend Progress States & Grounding UI | `frontend/src/` | **VERIFIED** | Excel download integration, verified claim indicators, live LangGraph stage indicators, mock provider warning, clean Next.js 16 build |
+| **P4-04** | CI/CD Automation, Logging & Docker Compose | Root repo, GitHub Actions, Docker | **VERIFIED** | Multi-stage `frontend/Dockerfile`, `backend/Dockerfile`, validated `docker-compose.yml`, GitHub Actions `.github/workflows/ci.yml` (55 tests passing) |

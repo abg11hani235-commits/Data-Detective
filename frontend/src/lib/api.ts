@@ -1,6 +1,16 @@
-import { DatasetProfile, SampleDatasetInfo, AnalysisResponse, HealthStatus } from "@/types";
+import { DatasetProfile, SampleDatasetInfo, AnalysisResponse, HealthStatus, InvestigationSummary } from "@/types";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || "";
+
+function getAuthHeaders(): Record<string, string> {
+  if (typeof window !== "undefined") {
+    const token = localStorage.getItem("token") || sessionStorage.getItem("token");
+    if (token) {
+      return { Authorization: `Bearer ${token}` };
+    }
+  }
+  return {};
+}
 
 export class ApiError extends Error {
   constructor(public status: number, message: string) {
@@ -27,18 +37,23 @@ async function handleResponse<T>(res: Response): Promise<T> {
 
 export const api = {
   async getHealth(): Promise<HealthStatus> {
-    const res = await fetch(`${API_BASE}/api/health`);
+    const res = await fetch(`${API_BASE}/api/health`, {
+      headers: { ...getAuthHeaders() },
+    });
     return handleResponse(res);
   },
 
   async getSamples(): Promise<SampleDatasetInfo[]> {
-    const res = await fetch(`${API_BASE}/api/samples`);
+    const res = await fetch(`${API_BASE}/api/samples`, {
+      headers: { ...getAuthHeaders() },
+    });
     return handleResponse(res);
   },
 
   async loadSample(sampleId: string): Promise<DatasetProfile> {
     const res = await fetch(`${API_BASE}/api/samples/${sampleId}/load`, {
       method: "POST",
+      headers: { ...getAuthHeaders() },
     });
     return handleResponse(res);
   },
@@ -48,7 +63,15 @@ export const api = {
     formData.append("file", file);
     const res = await fetch(`${API_BASE}/api/datasets/upload`, {
       method: "POST",
+      headers: { ...getAuthHeaders() },
       body: formData,
+    });
+    return handleResponse(res);
+  },
+
+  async getAdvancedEda(datasetId: string): Promise<any> {
+    const res = await fetch(`${API_BASE}/api/datasets/${datasetId}/advanced-eda`, {
+      headers: { ...getAuthHeaders() },
     });
     return handleResponse(res);
   },
@@ -56,7 +79,7 @@ export const api = {
   async createSession(datasetId?: string): Promise<{ session_id: string; dataset_id?: string }> {
     const res = await fetch(`${API_BASE}/api/sessions`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: { "Content-Type": "application/json", ...getAuthHeaders() },
       body: JSON.stringify({ dataset_id: datasetId }),
     });
     return handleResponse(res);
@@ -65,6 +88,7 @@ export const api = {
   async attachDataset(sessionId: string, datasetId: string): Promise<any> {
     const res = await fetch(`${API_BASE}/api/sessions/${sessionId}/set_dataset/${datasetId}`, {
       method: "POST",
+      headers: { ...getAuthHeaders() },
     });
     return handleResponse(res);
   },
@@ -72,18 +96,51 @@ export const api = {
   async askQuestion(sessionId: string, question: string): Promise<AnalysisResponse> {
     const res = await fetch(`${API_BASE}/api/sessions/${sessionId}/questions`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: { "Content-Type": "application/json", ...getAuthHeaders() },
       body: JSON.stringify({ question }),
     });
     return handleResponse(res);
   },
 
   async getSessionHistory(sessionId: string): Promise<AnalysisResponse[]> {
-    const res = await fetch(`${API_BASE}/api/sessions/${sessionId}/history`);
+    const res = await fetch(`${API_BASE}/api/sessions/${sessionId}/history`, {
+      headers: { ...getAuthHeaders() },
+    });
     return handleResponse(res);
   },
 
-  getReportDownloadUrl(analysisId: string, format: "html" | "markdown" = "html", sessionId?: string): string {
+  async listInvestigations(): Promise<InvestigationSummary[]> {
+    const res = await fetch(`${API_BASE}/api/investigations`, {
+      headers: { ...getAuthHeaders() },
+    });
+    return handleResponse(res);
+  },
+
+  async getInvestigation(sessionId: string): Promise<InvestigationSummary> {
+    const res = await fetch(`${API_BASE}/api/investigations/${sessionId}`, {
+      headers: { ...getAuthHeaders() },
+    });
+    return handleResponse(res);
+  },
+
+  async updateInvestigation(sessionId: string, title: string): Promise<InvestigationSummary> {
+    const res = await fetch(`${API_BASE}/api/investigations/${sessionId}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json", ...getAuthHeaders() },
+      body: JSON.stringify({ title }),
+    });
+    return handleResponse(res);
+  },
+
+  async deleteInvestigation(sessionId: string): Promise<any> {
+    const res = await fetch(`${API_BASE}/api/investigations/${sessionId}`, {
+      method: "DELETE",
+      headers: { ...getAuthHeaders() },
+    });
+    return handleResponse(res);
+  },
+
+  getReportDownloadUrl(analysisId: string, format: "html" | "markdown" | "excel" = "html", sessionId?: string): string {
     const sessParam = sessionId ? `&session_id=${sessionId}` : "";
     return `${API_BASE}/api/reports/${analysisId}/download?format=${format}${sessParam}`;
   },

@@ -309,6 +309,13 @@ class StorageService:
             history_count=0,
         )
 
+    async def set_session_dataset_async(self, session_id: str, dataset_id: str) -> bool:
+        if session_id in self.sessions:
+            self.sessions[session_id]["dataset_id"] = dataset_id
+            await self._db_update_session_dataset(session_id, dataset_id)
+            return True
+        return False
+
     async def add_analysis_async(self, analysis: AnalysisResponse) -> None:
         self.analyses[analysis.id] = analysis
         session = self.sessions.get(analysis.session_id)
@@ -483,6 +490,53 @@ class StorageService:
         if not session:
             return []
         return session.get("history", [])
+
+    def list_sessions(self, user_id: Optional[str] = None) -> List[Dict[str, Any]]:
+        sessions_list = []
+        for s in self.sessions.values():
+            if user_id is not None:
+                if s.get("user_id") == user_id:
+                    sessions_list.append(s)
+            else:
+                sessions_list.append(s)
+        sessions_list.sort(key=lambda x: x.get("created_at", ""), reverse=True)
+        return sessions_list
+
+    def update_session_title(self, session_id: str, title: str) -> bool:
+        if session_id in self.sessions:
+            self.sessions[session_id]["title"] = title
+            async def _db_update_title():
+                try:
+                    factory = get_session_factory()
+                    async with factory() as db:
+                        await db.execute(
+                            update(SessionModel).where(SessionModel.id == session_id).values(title=title, updated_at=datetime.utcnow())
+                        )
+                        await db.commit()
+                except Exception as e:
+                    logger.error(f"Failed to update session title in DB: {e}")
+            self._schedule_async(_db_update_title())
+            return True
+        return False
+
+    def delete_session(self, session_id: str) -> bool:
+        if session_id in self.sessions:
+            self.sessions.pop(session_id)
+            to_remove = [aid for aid, a in self.analyses.items() if a.session_id == session_id]
+            for aid in to_remove:
+                self.analyses.pop(aid, None)
+
+            async def _db_del():
+                try:
+                    factory = get_session_factory()
+                    async with factory() as db:
+                        await db.execute(delete(SessionModel).where(SessionModel.id == session_id))
+                        await db.commit()
+                except Exception as e:
+                    logger.error(f"Failed to delete session from DB: {e}")
+            self._schedule_async(_db_del())
+            return True
+        return False
 
 
 storage = StorageService()

@@ -24,6 +24,7 @@ import {
   Table as TableIcon,
   ShieldCheck,
   ArrowRight,
+  FileSpreadsheet,
 } from "lucide-react";
 
 interface AnalysisWorkspaceProps {
@@ -357,9 +358,9 @@ export const AnalysisWorkspace: React.FC<AnalysisWorkspaceProps> = ({
                       {analysis.execution_duration_ms}ms
                     </span>
                     <span className="text-slate-500">•</span>
-                    <span className="text-xs text-slate-400 flex items-center gap-1 font-mono">
+                    <span className={`text-xs flex items-center gap-1 font-mono ${analysis.provider_used === "mock" ? "text-amber-400 bg-amber-950/40 px-1.5 py-0.5 rounded border border-amber-500/40 font-semibold" : "text-slate-400"}`}>
                       <Cpu className="w-3 h-3 text-slate-500" />
-                      {analysis.provider_used}
+                      {analysis.provider_used === "mock" ? "MOCK PROVIDER" : analysis.provider_used}
                     </span>
                   </div>
                   <h3 className="mt-2 text-lg font-bold text-white tracking-tight">
@@ -376,6 +377,15 @@ export const AnalysisWorkspace: React.FC<AnalysisWorkspaceProps> = ({
                     <FileText className="w-3.5 h-3.5 text-cyan-400" />
                     Full Report
                   </button>
+                  <a
+                    href={api.getReportDownloadUrl(analysis.id, "excel", analysis.session_id)}
+                    download
+                    className="flex items-center gap-1.5 rounded-lg border border-emerald-800/80 bg-emerald-950/40 px-3 py-1.5 text-xs font-medium text-emerald-400 hover:bg-emerald-900/60 hover:text-emerald-300 transition"
+                    title="Download Structured Multi-Sheet Excel Workbook"
+                  >
+                    <FileSpreadsheet className="w-3.5 h-3.5 text-emerald-400" />
+                    Excel
+                  </a>
                   <a
                     href={api.getReportDownloadUrl(analysis.id, "html", analysis.session_id)}
                     download

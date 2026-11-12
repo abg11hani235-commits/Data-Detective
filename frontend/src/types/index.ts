@@ -49,10 +49,33 @@ export interface SampleDatasetInfo {
   sample_questions: string[];
 }
 
+export interface Claim {
+  claim_id: string;
+  metric_name: string;
+  dataset_name?: string;
+  entity_dimension?: string;
+  aggregation_method?: string;
+  calculated_value: any;
+  evidence_id?: string;
+  validation_status: "verified" | "unsupported" | "contradiction" | "context_mismatch" | "pending";
+  supporting_quote?: string;
+}
+
 export interface AnalysisInsights {
   findings: string[];
   interpretation: string;
   caveats: string[];
+  claims?: Claim[];
+}
+
+export interface InvestigationSummary {
+  session_id: string;
+  title: string;
+  dataset_id?: string;
+  created_at: string;
+  updated_at: string;
+  analysis_count: number;
+  last_question?: string;
 }
 
 export interface AnalysisResponse {

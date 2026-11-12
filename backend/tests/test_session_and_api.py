@@ -2,10 +2,13 @@ import pytest
 from fastapi.testclient import TestClient
 from app.main import app
 
-client = TestClient(app)
+@pytest.fixture(scope="module")
+def client():
+    with TestClient(app) as c:
+        yield c
 
 
-def test_health_endpoint():
+def test_health_endpoint(client):
     res = client.get("/api/health")
     assert res.status_code == 200
     data = res.json()
@@ -14,7 +17,7 @@ def test_health_endpoint():
     assert "limits" in data
 
 
-def test_list_and_load_samples():
+def test_list_and_load_samples(client):
     res = client.get("/api/samples")
     assert res.status_code == 200
     samples = res.json()
@@ -33,7 +36,7 @@ def test_list_and_load_samples():
     assert profile["dataset_id"].startswith("sample-sales-")
 
 
-def test_session_lifecycle_and_isolation():
+def test_session_lifecycle_and_isolation(client):
     # 1. Create two isolated sessions
     s1 = client.post("/api/sessions", json={}).json()
     s2 = client.post("/api/sessions", json={}).json()
