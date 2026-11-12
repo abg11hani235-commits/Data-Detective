@@ -25,8 +25,8 @@ Statuses: `NOT STARTED` | `IN PROGRESS` | `BLOCKED` | `IMPLEMENTED` | `TESTED` |
 |---|---|---|---|---|
 | **P1-01** | Dedicated Docker Sandbox Image & Non-Root Execution | `sandbox/docker_runner.py` | **VERIFIED** | `Dockerfile.sandbox`, pinned deps, UID 10001, ro/rw split volumes, timeout (6/6 tests pass) |
 | **P1-02** | Output Stream Bounding & Memory DoS Prevention | `sandbox/runner.py`, `docker_runner.py` | **VERIFIED** | Bounded chunk reading, max output kill tests (10/10 security tests pass) |
-| **P1-03** | PostgreSQL Persistence Layer & Alembic Migrations | `storage/`, `models/` | NOT STARTED | PostgreSQL models for Session, Dataset, Analysis; migrations |
-| **P1-04** | User Authentication & Resource Authorization | `api/`, `auth/` | NOT STARTED | JWT/API Key auth, `user_id` ownership checks on all routes, protected SSE |
+| **P1-03** | PostgreSQL Persistence Layer & Alembic Migrations | `storage/`, `models/`, `db/` | **VERIFIED** | Async SQLAlchemy models, Alembic revision head, auto preloading (2/2 tests pass) |
+| **P1-04** | User Authentication & Resource Authorization | `api/`, `auth/` | **VERIFIED** | JWT bearer auth, bcrypt hashing, cross-tenant isolation enforcement (2/2 tests pass) |
 | **P1-05** | Secure Ingestion Streaming & Profiler Bugfix | `ingestion/service.py`, `profiler/engine.py` | **VERIFIED** | Streamed chunk validation, orphaned cleanup, Pandas 3.0 string/date fix (8/8 tests pass) |
 
 ---

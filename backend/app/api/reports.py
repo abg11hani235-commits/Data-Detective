@@ -1,7 +1,9 @@
 from typing import Optional
-from fastapi import APIRouter, HTTPException, Query, Response, status
+from fastapi import APIRouter, Depends, HTTPException, Query, Response, status
 from fastapi.responses import HTMLResponse, PlainTextResponse
 
+from app.auth.dependencies import get_optional_current_user, verify_ownership
+from app.models.database import User
 from app.models.schemas import AnalysisResponse
 from app.reporting.service import ReportExporter
 from app.storage.service import storage
@@ -9,7 +11,11 @@ from app.storage.service import storage
 router = APIRouter(prefix="/api/reports", tags=["reports"])
 
 
-def verify_session_report_access(analysis_id: str, session_id: Optional[str]) -> AnalysisResponse:
+def verify_session_report_access(
+    analysis_id: str,
+    session_id: Optional[str],
+    current_user: Optional[User] = None,
+) -> AnalysisResponse:
     analysis = storage.get_analysis(analysis_id)
     if not analysis:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Analysis record not found.")
@@ -19,12 +25,21 @@ def verify_session_report_access(analysis_id: str, session_id: Optional[str]) ->
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Forbidden: Report does not belong to the requested session.",
         )
+
+    session = storage.get_session(analysis.session_id)
+    if session:
+        verify_ownership(session.get("user_id"), current_user, "Session")
+
     return analysis
 
 
 @router.get("/{analysis_id}/markdown", response_class=PlainTextResponse)
-async def get_markdown_report(analysis_id: str, session_id: str = Query(..., description="Active session ID")):
-    analysis = verify_session_report_access(analysis_id, session_id)
+async def get_markdown_report(
+    analysis_id: str,
+    session_id: str = Query(..., description="Active session ID"),
+    current_user: Optional[User] = Depends(get_optional_current_user),
+):
+    analysis = verify_session_report_access(analysis_id, session_id, current_user)
 
     session = storage.get_session(analysis.session_id)
     if not session or not session.get("dataset_id"):
@@ -39,8 +54,12 @@ async def get_markdown_report(analysis_id: str, session_id: str = Query(..., des
 
 
 @router.get("/{analysis_id}/html", response_class=HTMLResponse)
-async def get_html_report(analysis_id: str, session_id: str = Query(..., description="Active session ID")):
-    analysis = verify_session_report_access(analysis_id, session_id)
+async def get_html_report(
+    analysis_id: str,
+    session_id: str = Query(..., description="Active session ID"),
+    current_user: Optional[User] = Depends(get_optional_current_user),
+):
+    analysis = verify_session_report_access(analysis_id, session_id, current_user)
 
     session = storage.get_session(analysis.session_id)
     if not session or not session.get("dataset_id"):
@@ -59,8 +78,9 @@ async def download_report(
     analysis_id: str,
     session_id: str = Query(..., description="Active session ID"),
     format: str = Query("html", enum=["html", "markdown"]),
+    current_user: Optional[User] = Depends(get_optional_current_user),
 ):
-    analysis = verify_session_report_access(analysis_id, session_id)
+    analysis = verify_session_report_access(analysis_id, session_id, current_user)
 
     session = storage.get_session(analysis.session_id)
     if not session or not session.get("dataset_id"):

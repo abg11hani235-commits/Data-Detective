@@ -5,6 +5,7 @@ from fastapi import FastAPI, Request, status
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
+from app.api.auth import router as auth_router
 from app.api.datasets import router as datasets_router
 from app.api.reports import router as reports_router
 from app.api.samples import router as samples_router
@@ -12,12 +13,14 @@ from app.api.sessions import router as sessions_router
 from app.config import settings
 from app.logging import logger
 from app.providers.manager import provider_manager
+from app.storage.service import storage
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     # Startup initialization
     settings.ensure_directories()
+    await storage.init_storage()
     logger.info("Data Detective Backend initialized successfully.")
     yield
     # Shutdown clean up
@@ -101,6 +104,7 @@ async def health_check():
 
 
 # Include Routers
+app.include_router(auth_router)
 app.include_router(datasets_router)
 app.include_router(sessions_router)
 app.include_router(samples_router)

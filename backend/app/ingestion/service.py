@@ -1,5 +1,5 @@
 from pathlib import Path
-from typing import Tuple
+from typing import Optional, Tuple
 import pandas as pd
 from fastapi import HTTPException, UploadFile, status
 
@@ -13,7 +13,9 @@ class IngestionService:
     ALLOWED_EXTENSIONS = {"csv", "xlsx", "xls", "json"}
 
     @classmethod
-    async def process_upload(cls, file: UploadFile) -> Tuple[DatasetMetadata, DatasetProfile]:
+    async def process_upload(
+        cls, file: UploadFile, user_id: Optional[str] = None
+    ) -> Tuple[DatasetMetadata, DatasetProfile]:
         # Validate filename and extension
         if not file.filename:
             raise HTTPException(
@@ -58,17 +60,22 @@ class IngestionService:
         # Attempt to parse into DataFrame to validate format integrity and row/column limits
         meta = None
         try:
-            meta = storage.save_dataset_file(filename=filename, content=content, file_type=ext)
+            meta = await storage.save_dataset_file_async(
+                filename=filename,
+                content=content,
+                file_type=ext,
+                user_id=user_id,
+            )
 
             # Enforce row/column caps
             if meta.row_count > settings.MAX_DATASET_ROWS:
-                storage.remove_dataset(meta.id)
+                await storage.remove_dataset_async(meta.id)
                 raise HTTPException(
                     status_code=status.HTTP_400_BAD_REQUEST,
                     detail=f"Dataset row count ({meta.row_count}) exceeds limit of {settings.MAX_DATASET_ROWS}.",
                 )
             if meta.column_count > settings.MAX_DATASET_COLS:
-                storage.remove_dataset(meta.id)
+                await storage.remove_dataset_async(meta.id)
                 raise HTTPException(
                     status_code=status.HTTP_400_BAD_REQUEST,
                     detail=f"Dataset column count ({meta.column_count}) exceeds limit of {settings.MAX_DATASET_COLS}.",
@@ -77,11 +84,11 @@ class IngestionService:
             # Profile dataset
             saved_path = storage.get_dataset_path(meta.id)
             if not saved_path or not saved_path.exists():
-                storage.remove_dataset(meta.id)
+                await storage.remove_dataset_async(meta.id)
                 raise HTTPException(status_code=500, detail="Stored dataset file not found.")
 
             profile = ProfilingEngine.profile_file(saved_path, meta)
-            storage.save_dataset_profile(profile)
+            await storage.save_dataset_profile_async(profile)
 
             return meta, profile
 
@@ -89,7 +96,7 @@ class IngestionService:
             raise
         except Exception as e:
             if meta and meta.id:
-                storage.remove_dataset(meta.id)
+                await storage.remove_dataset_async(meta.id)
             raise HTTPException(
                 status_code=status.HTTP_422_UNPROCESSABLE_CONTENT if hasattr(status, "HTTP_422_UNPROCESSABLE_CONTENT") else 422,
                 detail=f"Failed to parse {ext.upper()} file: {str(e)}",

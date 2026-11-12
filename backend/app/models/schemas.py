@@ -4,6 +4,7 @@ from pydantic import BaseModel, Field
 
 class DatasetMetadata(BaseModel):
     id: str
+    user_id: Optional[str] = None
     filename: str
     file_type: str
     row_count: int
@@ -48,6 +49,7 @@ class SessionCreateRequest(BaseModel):
 
 class SessionResponse(BaseModel):
     session_id: str
+    user_id: Optional[str] = None
     dataset_id: Optional[str] = None
     created_at: str
     history_count: int = 0
@@ -106,3 +108,30 @@ class SampleDatasetInfo(BaseModel):
     row_count: int
     column_count: int
     sample_questions: List[str]
+
+
+class UserRegisterRequest(BaseModel):
+    email: str = Field(..., min_length=5, max_length=255)
+    password: str = Field(..., min_length=8, max_length=128)
+    full_name: Optional[str] = Field(None, max_length=255)
+
+
+class UserLoginRequest(BaseModel):
+    email: str
+    password: str
+
+
+class TokenResponse(BaseModel):
+    access_token: str
+    token_type: str = "bearer"
+    user_id: str
+    email: str
+
+
+class UserResponse(BaseModel):
+    id: str
+    email: str
+    full_name: Optional[str] = None
+    is_active: bool
+    created_at: str
+

@@ -38,6 +38,10 @@ backend/data/artifacts/*
 !backend/data/artifacts/.gitkeep
 backend/data/sandbox_tmp/*
 !backend/data/sandbox_tmp/.gitkeep
+*.db
+*.sqlite
+*.sqlite3
+data/
 
 # Operating System & IDE
 .DS_Store
